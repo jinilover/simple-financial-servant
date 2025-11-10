@@ -60,9 +60,29 @@ common lang
 library lib
     import:           warnings
                     , lang
+    exposed-modules:  AppConfig
+                    , AppEnv
+                    , Common.Types
+                    , Plaid.Client
+                    , Plaid.PlaidConfig
+                    , Plaid.PlaidEnv
+                    , Plaid.Resource
+                    , Plaid.Types
+                    , Plaid.Types.ClientId
+                    , Plaid.Types.SecretKey
+                    , PlaidGateway.Types
+                    , PlaidGateway.Types.ClientId
+                    , PlaidGateway.Types.SecretKey
     hs-source-dirs:   src/lib
     build-depends:    base
                     , aeson
+                    , lens
+                    , mtl
+                    , http-client-tls
+                    , refined
+                    , servant-client
+                    , servant-server
+                    , text
 
 executable plaid-application-server
     import:           warnings
