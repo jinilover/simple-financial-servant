@@ -15,3 +15,6 @@ makeClassy ''AppEnv
 
 instance HasPlaidConfig AppEnv where
   plaidConfig = configApp . configPlaid
+
+instance HasPlaidClientEnv AppEnv where
+  plaidClientEnv = envPlaid

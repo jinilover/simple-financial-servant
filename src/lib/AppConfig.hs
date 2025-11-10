@@ -7,7 +7,7 @@ import Servant.Client
 
 import Common.Types
 import Plaid.PlaidConfig
-import PlaidGateway.Types
+import PlaidSecurity.Types
 
 newtype ServerPort = ServerPort
   { unServerPort :: PosInt }

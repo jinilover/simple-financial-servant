@@ -62,27 +62,46 @@ library lib
                     , lang
     exposed-modules:  AppConfig
                     , AppEnv
+                    , Bootstrap
                     , Common.Types
+                    , Item.Types
+                    , Item.Types.ItemId
                     , Plaid.Client
                     , Plaid.PlaidConfig
                     , Plaid.PlaidEnv
                     , Plaid.Resource
                     , Plaid.Types
+                    , Plaid.Types.AccessToken
                     , Plaid.Types.ClientId
+                    , Plaid.Types.ExchangeAccessTokenRequest
+                    , Plaid.Types.ExchangeAccessTokenResponse
+                    , Plaid.Types.ItemId
+                    , Plaid.Types.PlaidError
+                    , Plaid.Types.PublicToken
                     , Plaid.Types.SecretKey
-                    , PlaidGateway.Types
-                    , PlaidGateway.Types.ClientId
-                    , PlaidGateway.Types.SecretKey
+                    , PlaidSecurity.Api
+                    , PlaidSecurity.TokenService
+                    , PlaidSecurity.Types
+                    , PlaidSecurity.Types.AccessToken
+                    , PlaidSecurity.Types.ClientId
+                    , PlaidSecurity.Types.PublicToken
+                    , PlaidSecurity.Types.SecretKey
+                    , PlaidSecurity.Types.TokenExchangeResponse
+                    , PlaidSecurity.Types.TokenServiceError
+                    , Server
     hs-source-dirs:   src/lib
     build-depends:    base
                     , aeson
+                    , bytestring
+                    , http-client-tls
+                    , http-types
                     , lens
                     , mtl
-                    , http-client-tls
                     , refined
                     , servant-client
                     , servant-server
                     , text
+                    , warp
 
 executable plaid-application-server
     import:           warnings
@@ -99,6 +118,7 @@ executable plaid-application-server
 
     -- Other library packages from which modules are imported.
     build-depends:    base
+                    , lib
 
     -- Directories containing source files.
     hs-source-dirs:   src/app

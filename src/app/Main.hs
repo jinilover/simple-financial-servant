@@ -1,4 +1,6 @@
 module Main where
 
+import Bootstrap
+
 main :: IO ()
-main = putStrLn "Hello, Haskell!"
+main = bootstrap
