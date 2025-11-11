@@ -1,5 +1,5 @@
 {-# LANGUAGE DerivingVia #-}
-module Item.Types.ItemId where
+module Domain.Types.ItemId where
 
 import Data.Aeson
 import Data.Text

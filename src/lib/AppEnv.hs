@@ -4,8 +4,7 @@ module AppEnv where
 import Control.Lens
 
 import AppConfig
-import Plaid.PlaidEnv
-import Plaid.PlaidConfig 
+import Plaid.Types
 
 data AppEnv = AppEnv
   { _configApp :: AppConfig

@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Plaid.PlaidEnv where
+module Plaid.Types.PlaidEnv where
 
 import Control.Lens
 import Servant.Client

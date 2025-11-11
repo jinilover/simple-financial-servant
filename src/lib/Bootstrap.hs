@@ -4,8 +4,8 @@ import Control.Exception
 
 import AppConfig
 import AppEnv
-import Plaid.PlaidConfig
 import Plaid.Resource
+import Plaid.Types
 import Server
 
 bootstrap :: IO ()
@@ -19,4 +19,4 @@ mkAppEnv =
     pure AppEnv {..}
 
 closeAppEnv :: AppEnv -> IO ()
-closeAppEnv = const . pure $ ()
+closeAppEnv = const $ pure ()

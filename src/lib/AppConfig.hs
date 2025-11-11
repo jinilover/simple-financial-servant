@@ -6,7 +6,7 @@ import Refined
 import Servant.Client
 
 import Common.Types
-import Plaid.PlaidConfig
+import qualified Plaid.Types as PL
 import PlaidSecurity.Types
 
 newtype ServerPort = ServerPort
@@ -15,7 +15,7 @@ makeClassy ''ServerPort
 
 data AppConfig = AppConfig 
   { _configServerPort :: ServerPort
-  , _configPlaid :: PlaidConfig
+  , _configPlaid :: PL.PlaidConfig
   }
 makeClassy ''AppConfig
 
@@ -23,9 +23,9 @@ loadConfig :: IO AppConfig
 loadConfig = parseBaseUrl "https://sandbox.plaid.com" <&> \baseUrl ->
   let
     _configServerPort = ServerPort $$(refineTH 8001)
-    _configEndpoint = Endpoint baseUrl
+    _configEndpoint = PL.Endpoint baseUrl
     _configClientId = ClientId "CHANGEME"
     _configSecretKey = SecretKey "CHANGEME"
-    _configPlaid = PlaidConfig {..}
+    _configPlaid = PL.PlaidConfig {..}
   in
     AppConfig {..}

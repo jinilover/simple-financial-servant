@@ -8,12 +8,13 @@ import Data.Bifunctor
 import Data.Functor
 import qualified Data.Text as T
   
+import Domain.Types  
 import Plaid.Client
 import qualified Plaid.Types as PL
 import PlaidSecurity.Types 
 
 newtype TokenService m = TokenService 
-  { exchangeToken :: PublicToken -> m (Either TokenServiceError TokenExchangeResponse) 
+  { exchangeToken :: UserId -> PublicToken -> m (Either TokenServiceError TokenExchangeResponse) 
   }
 
 mkTokenService :: 
@@ -22,7 +23,7 @@ mkTokenService ::
   TokenService m 
 mkTokenService plaidClient = 
   TokenService
-  { exchangeToken = \publicToken -> 
+  { exchangeToken = \_ publicToken -> 
       plaidClient.exchangeAccessToken (PL.fromPSPublicToken publicToken) <&>
         bimap (TokenServiceError . mapClientError) fromExchangeAccessTokenResponse
   }

@@ -1,12 +1,12 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TemplateHaskell #-}
-module Plaid.PlaidConfig where
+module Plaid.Types.PlaidConfig where
 
 import Control.Lens
 import Servant.Client
 
-import PlaidSecurity.Types.ClientId ( ClientId )
-import PlaidSecurity.Types.SecretKey ( SecretKey )
+import PlaidSecurity.Types.ClientId
+import PlaidSecurity.Types.SecretKey
 
 newtype Endpoint = Endpoint
   { unEndpoint :: BaseUrl }

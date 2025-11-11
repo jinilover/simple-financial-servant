@@ -5,7 +5,7 @@ module PlaidSecurity.Types.TokenExchangeResponse where
 import Data.Aeson
 import GHC.Generics
 
-import Item.Types.ItemId ( ItemId(ItemId) )
+import Domain.Types
 import qualified Plaid.Types as PL
 
 newtype TokenExchangeResponse = TokenExchangeResponse

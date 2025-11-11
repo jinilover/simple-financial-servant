@@ -10,11 +10,12 @@ import Control.Monad.Error.Class
 import qualified Data.Text as T
 import Servant
 
+import Domain.Types
 import PlaidSecurity.Types
 import PlaidSecurity.TokenService
 
 type PlaidSecurityApi = "v1" :> 
-  (   "token" :> "exchange" :> Capture "public_token" PublicToken :> Get '[JSON] TokenExchangeResponse
+  (   "token" :> "exchange" :> Capture "user_id" UserId :> Capture "public_token" PublicToken :> Get '[JSON] TokenExchangeResponse
   )
 
 apiServer ::
@@ -22,7 +23,7 @@ apiServer ::
   TokenService m -> ServerT PlaidSecurityApi m
 apiServer tokenService = exchangeToken
   where
-    exchangeToken publicToken = tokenService.exchangeToken publicToken >>= \case
+    exchangeToken userId publicToken = tokenService.exchangeToken userId publicToken >>= \case
       Right resp -> pure resp
       Left (TokenServiceError apiError) -> handlePlaidApiError apiError
 

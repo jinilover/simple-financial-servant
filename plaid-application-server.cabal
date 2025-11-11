@@ -64,11 +64,11 @@ library lib
                     , AppEnv
                     , Bootstrap
                     , Common.Types
-                    , Item.Types
-                    , Item.Types.ItemId
+                    , Database.Persist.Instances.UUID
+                    , Domain.Types
+                    , Domain.Types.ItemId
+                    , Domain.Types.UserId
                     , Plaid.Client
-                    , Plaid.PlaidConfig
-                    , Plaid.PlaidEnv
                     , Plaid.Resource
                     , Plaid.Types
                     , Plaid.Types.AccessToken
@@ -76,6 +76,8 @@ library lib
                     , Plaid.Types.ExchangeAccessTokenRequest
                     , Plaid.Types.ExchangeAccessTokenResponse
                     , Plaid.Types.ItemId
+                    , Plaid.Types.PlaidConfig
+                    , Plaid.Types.PlaidEnv
                     , Plaid.Types.PlaidError
                     , Plaid.Types.PublicToken
                     , Plaid.Types.SecretKey
@@ -97,10 +99,13 @@ library lib
                     , http-types
                     , lens
                     , mtl
+                    , persistent
+                    , persistent-postgresql
                     , refined
                     , servant-client
                     , servant-server
                     , text
+                    , uuid
                     , warp
 
 executable plaid-application-server

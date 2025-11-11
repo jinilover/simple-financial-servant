@@ -14,8 +14,6 @@ import Servant.Client
 import Servant
 
 import Plaid.Types
-import Plaid.PlaidEnv
-import Plaid.PlaidConfig
 
 type PlaidApi = 
   "item" :> "public_token" :> "exchange" :> ReqBody '[JSON] ExchangeAccessTokenRequest :> Post '[JSON] ExchangeAccessTokenResponse
@@ -35,20 +33,15 @@ mkPlaidClient :: forall m r.
   PlaidClient m
 mkPlaidClient = PlaidClient 
   { exchangeAccessToken = \public_token -> 
-      do
-        PlaidConfig {..} <- view plaidConfig
+      view plaidConfig >>= \PlaidConfig {..} ->
         let client_id = fromPSClientId _configClientId
             secret = fromPSSecretKey _configSecretKey
-            req = ExchangeAccessTokenRequest {..}
-        callClient (exchangeAccessTokenCM req) <&> 
-          first (handleClientError "exchange public token for access token")
+        in  callClient (exchangeAccessTokenCM ExchangeAccessTokenRequest {..}) <&>
+            first (handleClientError "exchange public token for access token")
   }
   where
     callClient :: ClientM a -> m (Either ClientError a)
-    callClient clientM =
-      do
-        view plaidClientEnv <&> (.unPlaidClientEnv) >>= 
-          liftIO . runClientM clientM
+    callClient clientM = view plaidClientEnv >>= liftIO . runClientM clientM . (.unPlaidClientEnv)
         
 handleClientError :: T.Text -> ClientError -> PlaidError
 handleClientError when_ (FailureResponse _ Response {responseStatusCode = status}) = 
