@@ -64,6 +64,7 @@ library lib
                     , AppEnv
                     , Bootstrap
                     , Common.Types
+                    , Common.Utils
                     , Database.Persist.Instances.UUID
                     , Domain.Types
                     , Domain.Types.ItemId
@@ -73,6 +74,7 @@ library lib
                     , Plaid.Types
                     , Plaid.Types.AccessToken
                     , Plaid.Types.ClientId
+                    , Plaid.Types.ErrorResponse
                     , Plaid.Types.ExchangeAccessTokenRequest
                     , Plaid.Types.ExchangeAccessTokenResponse
                     , Plaid.Types.ItemId
@@ -81,6 +83,7 @@ library lib
                     , Plaid.Types.PlaidError
                     , Plaid.Types.PublicToken
                     , Plaid.Types.SecretKey
+                    , PlaidSecurity.AccessTokenStore
                     , PlaidSecurity.Api
                     , PlaidSecurity.TokenService
                     , PlaidSecurity.Types
@@ -91,6 +94,12 @@ library lib
                     , PlaidSecurity.Types.TokenExchangeResponse
                     , PlaidSecurity.Types.TokenServiceError
                     , Server
+                    , Store.Migration
+                    , Store.Resource
+                    , Store.Types
+                    , Store.Types.DbConfig
+                    , Store.Types.StoreEnv
+                    , Store.Utils
     hs-source-dirs:   src/lib
     build-depends:    base
                     , aeson
@@ -98,13 +107,17 @@ library lib
                     , http-client-tls
                     , http-types
                     , lens
+                    , monad-logger
                     , mtl
+                    , network-uri
                     , persistent
                     , persistent-postgresql
                     , refined
+                    , resource-pool
                     , servant-client
                     , servant-server
                     , text
+                    , time
                     , uuid
                     , warp
 

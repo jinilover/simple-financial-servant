@@ -1,37 +1,55 @@
+{-# LANGUAGE LambdaCase #-}
 module PlaidSecurity.TokenService 
   ( TokenService(..) 
   , mkTokenService
   )
 where
 
-import Data.Bifunctor
-import Data.Functor
-import qualified Data.Text as T
+import Control.Monad.IO.Class
+import Data.Time.Clock
   
+import Common.Utils
 import Domain.Types  
 import Plaid.Client
 import qualified Plaid.Types as PL
+import PlaidSecurity.AccessTokenStore
 import PlaidSecurity.Types 
+import Store.Types
 
 newtype TokenService m = TokenService 
   { exchangeToken :: UserId -> PublicToken -> m (Either TokenServiceError TokenExchangeResponse) 
   }
 
 mkTokenService :: 
-  Functor m =>
+  MonadIO m =>
   PlaidClient m ->
+  AccessTokenStore m ->
   TokenService m 
-mkTokenService plaidClient = 
+mkTokenService plaidClient tokenStore = 
   TokenService
-  { exchangeToken = \_ publicToken -> 
-      plaidClient.exchangeAccessToken (PL.fromPSPublicToken publicToken) <&>
-        bimap (TokenServiceError . mapClientError) fromExchangeAccessTokenResponse
+  { exchangeToken = \userId publicToken -> 
+      plaidClient.exchangeAccessToken (PL.fromPSPublicToken publicToken) >>= \case
+        Right resp -> saveAccessToken resp userId
+        Left err -> pureLeft . TokenServiceError . mapClientError $ err
   }
+  where
+    saveAccessToken PL.ExchangeAccessTokenResponse {..} userId = 
+      do
+        now <- liftIO getCurrentTime
+        let
+          accessTokenDataUserUuid = userId
+          accessTokenDataItemId = fromPLItemId item_id
+          accessTokenDataAccessToken = fromPLAccessToken access_token
+          accessTokenDataCreatedAt = CreatedAt now
+          accessTokenDataUpdatedAt = UpdatedAt now
+          accessTokenData = AccessTokenData {..}
+        _ <- tokenStore.saveAccessTokenData accessTokenData
+        pureRight TokenExchangeResponse { itemId = accessTokenDataItemId}
 
 mapClientError :: PL.PlaidError -> PlaidApiError
 mapClientError PL.DeserializationError {..} = 
-  PlaidApiError $ T.append when_ errorMsg
+  PlaidApiError errorMsg
 mapClientError PL.HttpError {..} =
-  PlaidApiError $ T.append when_ errorMsg
+  PlaidApiError errorMsg
 mapClientError PL.NetworkError {..} =
-  PlaidApiError $ T.append when_ errorMsg
+  PlaidApiError errorMsg

@@ -36,21 +36,22 @@ mkPlaidClient = PlaidClient
       view plaidConfig >>= \PlaidConfig {..} ->
         let client_id = fromPSClientId _configClientId
             secret = fromPSSecretKey _configSecretKey
+        -- put `when` in logging when using katip `first (handleClientError "exchange public token for access token")`
         in  callClient (exchangeAccessTokenCM ExchangeAccessTokenRequest {..}) <&>
-            first (handleClientError "exchange public token for access token")
+            first handleClientError
   }
   where
     callClient :: ClientM a -> m (Either ClientError a)
     callClient clientM = view plaidClientEnv >>= liftIO . runClientM clientM . (.unPlaidClientEnv)
         
-handleClientError :: T.Text -> ClientError -> PlaidError
-handleClientError when_ (FailureResponse _ Response {responseStatusCode = status}) = 
-  HttpError { when_, status, errorMsg = "Got FailureResponse" } 
-handleClientError when_ (UnsupportedContentType mediaType Response {responseStatusCode = status}) = 
-  HttpError { when_, status, errorMsg = T.pack ("Unsupported mediaType: " <> show mediaType) }
-handleClientError when_ (InvalidContentTypeHeader Response {responseStatusCode = status}) = 
-  HttpError { when_, status, errorMsg = "InvalidContentTypeHeader"}
-handleClientError when_ (ConnectionError someException) = 
-  NetworkError { when_, errorMsg = T.pack $ show someException}
-handleClientError when_ (DecodeFailure msg Response {responseBody = jsonString} ) = 
-  DeserializationError { when_, errorMsg = msg, jsonString }
+handleClientError :: ClientError -> PlaidError
+handleClientError (FailureResponse _ Response {responseStatusCode = status}) = 
+  HttpError { status, errorMsg = "Got FailureResponse" } 
+handleClientError (UnsupportedContentType mediaType Response {responseStatusCode = status}) = 
+  HttpError { status, errorMsg = T.pack ("Unsupported mediaType: " <> show mediaType) }
+handleClientError (InvalidContentTypeHeader Response {responseStatusCode = status}) = 
+  HttpError { status, errorMsg = "InvalidContentTypeHeader"}
+handleClientError (ConnectionError someException) = 
+  NetworkError { errorMsg = T.pack $ show someException}
+handleClientError (DecodeFailure msg Response {responseBody = jsonString} ) = 
+  DeserializationError { errorMsg = msg, jsonString }

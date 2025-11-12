@@ -7,6 +7,7 @@ import AppEnv
 import Plaid.Resource
 import Plaid.Types
 import Server
+import Store.Resource
 
 bootstrap :: IO ()
 bootstrap = bracket mkAppEnv closeAppEnv startServer
@@ -16,7 +17,9 @@ mkAppEnv =
   do
     _configApp <- loadConfig
     _envPlaid <- mkPlaidEnv _configApp._configPlaid._configEndpoint
+    _envStoreBackendPool <- mkStoreBackendPoolEnv _configApp._configDb
     pure AppEnv {..}
 
 closeAppEnv :: AppEnv -> IO ()
-closeAppEnv = const $ pure ()
+closeAppEnv AppEnv {..} =
+  closeStoreBackendPoolEnv _envStoreBackendPool

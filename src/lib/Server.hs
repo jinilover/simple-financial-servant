@@ -13,6 +13,7 @@ import Network.Wai.Handler.Warp
 
 import AppEnv
 import AppConfig
+import PlaidSecurity.AccessTokenStore
 import PlaidSecurity.Api
 import PlaidSecurity.TokenService
 import Plaid.Client
@@ -32,4 +33,4 @@ server appEnv' = hoistServer (Proxy @PlaidSecurityApi) toHandler serverTApiM
     toHandler = Handler . flip runReaderT appEnv'
 
     serverTApiM :: ServerT PlaidSecurityApi AppServerM
-    serverTApiM = apiServer $ mkTokenService mkPlaidClient
+    serverTApiM = apiServer $ mkTokenService mkPlaidClient mkAccessTokenStore
