@@ -6,5 +6,6 @@ import Network.HTTP.Types
 
 data PlaidError = 
     DeserializationError { errorMsg :: Text, jsonString :: ByteString }
-  | HttpError { errorMsg :: Text, status :: Status } 
+  | HttpError { errorMsg :: Text } 
   | NetworkError { errorMsg :: Text}
+  | ApiErrorResponse { status :: Status, errorBody :: ByteString }

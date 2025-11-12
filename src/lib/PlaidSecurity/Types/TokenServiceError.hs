@@ -1,9 +1,13 @@
 module PlaidSecurity.Types.TokenServiceError where
 
+import Data.ByteString.Lazy
 import Data.Text
+import Network.HTTP.Types
 
-newtype PlaidApiError = 
-  PlaidApiError Text 
+data PlaidApiError = 
+    DecodeFailure Text ByteString
+  | CommsError Text
+  | PlaidErrorResponse Status ByteString
 
 newtype TokenServiceError = 
   TokenServiceError PlaidApiError

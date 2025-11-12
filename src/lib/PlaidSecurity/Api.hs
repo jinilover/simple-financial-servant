@@ -8,6 +8,7 @@ where
 
 import Control.Monad.Error.Class
 import qualified Data.Text as T
+import Network.HTTP.Types
 import Servant
 
 import Domain.Types
@@ -30,5 +31,12 @@ apiServer tokenService = exchangeToken
 handlePlaidApiError :: 
   MonadError ServerError m =>
   PlaidApiError -> m a
-handlePlaidApiError (PlaidApiError msg) = 
-  throwError $ err500 { errReasonPhrase = T.unpack msg }
+handlePlaidApiError (DecodeFailure errorMsg jsonString) = 
+  throwError err500 { errReasonPhrase = T.unpack errorMsg, errBody = jsonString }
+handlePlaidApiError (CommsError errorMsg) = 
+  throwError err500 { errReasonPhrase = T.unpack errorMsg }
+handlePlaidApiError (PlaidErrorResponse status errorResponse) = 
+  throwError err422 
+    { errReasonPhrase = "Plaid returns status code: " <> show status.statusCode
+    , errBody = errorResponse 
+    }

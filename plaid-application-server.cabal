@@ -74,7 +74,6 @@ library lib
                     , Plaid.Types
                     , Plaid.Types.AccessToken
                     , Plaid.Types.ClientId
-                    , Plaid.Types.ErrorResponse
                     , Plaid.Types.ExchangeAccessTokenRequest
                     , Plaid.Types.ExchangeAccessTokenResponse
                     , Plaid.Types.ItemId

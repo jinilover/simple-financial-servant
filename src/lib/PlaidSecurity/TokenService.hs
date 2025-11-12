@@ -47,9 +47,7 @@ mkTokenService plaidClient tokenStore =
         pureRight TokenExchangeResponse { itemId = accessTokenDataItemId}
 
 mapClientError :: PL.PlaidError -> PlaidApiError
-mapClientError PL.DeserializationError {..} = 
-  PlaidApiError errorMsg
-mapClientError PL.HttpError {..} =
-  PlaidApiError errorMsg
-mapClientError PL.NetworkError {..} =
-  PlaidApiError errorMsg
+mapClientError PL.DeserializationError {..} = DecodeFailure errorMsg jsonString
+mapClientError PL.HttpError {..} = CommsError errorMsg
+mapClientError PL.NetworkError {..} = CommsError errorMsg
+mapClientError PL.ApiErrorResponse {..} = PlaidErrorResponse status errorBody

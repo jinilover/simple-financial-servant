@@ -45,12 +45,12 @@ mkPlaidClient = PlaidClient
     callClient clientM = view plaidClientEnv >>= liftIO . runClientM clientM . (.unPlaidClientEnv)
         
 handleClientError :: ClientError -> PlaidError
-handleClientError (FailureResponse _ Response {responseStatusCode = status}) = 
-  HttpError { status, errorMsg = "Got FailureResponse" } 
-handleClientError (UnsupportedContentType mediaType Response {responseStatusCode = status}) = 
-  HttpError { status, errorMsg = T.pack ("Unsupported mediaType: " <> show mediaType) }
-handleClientError (InvalidContentTypeHeader Response {responseStatusCode = status}) = 
-  HttpError { status, errorMsg = "InvalidContentTypeHeader"}
+handleClientError (FailureResponse _ Response {..}) = 
+  ApiErrorResponse responseStatusCode responseBody
+handleClientError (UnsupportedContentType mediaType _) = 
+  HttpError { errorMsg = T.pack ("Unsupported mediaType: " <> show mediaType) }
+handleClientError (InvalidContentTypeHeader _) = 
+  HttpError { errorMsg = "InvalidContentTypeHeader" }
 handleClientError (ConnectionError someException) = 
   NetworkError { errorMsg = T.pack $ show someException}
 handleClientError (DecodeFailure msg Response {responseBody = jsonString} ) = 
