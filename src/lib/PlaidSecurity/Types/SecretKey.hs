@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingVia #-}
 module PlaidSecurity.Types.SecretKey where
 
 import Data.Text

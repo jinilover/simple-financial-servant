@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingVia #-}
 module Store.Types 
   ( CreatedAt(..)
   , UpdatedAt(..)
@@ -16,8 +15,8 @@ import Store.Types.StoreEnv
 
 newtype CreatedAt = CreatedAt 
   { unCreatedAt :: UTCTime }
-  deriving (Show, PersistField, PersistFieldSql) via UTCTime
+  deriving (Show, PersistField, PersistFieldSql)
 
 newtype UpdatedAt = UpdatedAt 
   { unUpdatedAt :: UTCTime }
-  deriving (Show, PersistField, PersistFieldSql) via UTCTime
+  deriving (Show, PersistField, PersistFieldSql)

@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingVia #-}
 module Plaid.Types.ClientId where
 
 import Data.Aeson
@@ -8,7 +7,7 @@ import qualified PlaidSecurity.Types.ClientId as PS
 
 newtype ClientId = ClientId
   { unClientId :: Text }
-  deriving ToJSON via Text
+  deriving ToJSON
 
 fromPSClientId :: PS.ClientId -> ClientId
 fromPSClientId = ClientId . (.unClientId)

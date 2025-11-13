@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Store.Types.DbConfig where
 
@@ -15,12 +14,12 @@ makeClassy ''DbConnPoolSize
 
 newtype DbConnString = DbConnString
   { unDbConnString :: ByteString }
-  deriving FromDhall via ByteString
+  deriving FromDhall
 makeClassy ''DbConnString
 
 newtype DbSchema = DbSchema
   { unDbSchema :: Text }
-  deriving FromDhall via Text
+  deriving FromDhall
 makeClassy ''DbSchema
 
 data DbConfig = DbConfig {
