@@ -11,7 +11,7 @@ import Data.Time.Clock
 import Common.Utils
 import Domain.Types  
 import Plaid.Client
-import qualified Plaid.Types as PL
+import Plaid.Types ( PlaidError(..), ExchangeAccessTokenResponse(..), fromPSPublicToken )
 import PlaidSecurity.AccessTokenStore
 import PlaidSecurity.Types 
 import Store.Types
@@ -28,12 +28,12 @@ mkTokenService ::
 mkTokenService plaidClient tokenStore = 
   TokenService
   { exchangeToken = \userId publicToken -> 
-      plaidClient.exchangeAccessToken (PL.fromPSPublicToken publicToken) >>= \case
+      plaidClient.exchangeAccessToken (fromPSPublicToken publicToken) >>= \case
         Right resp -> saveAccessToken resp userId
         Left err -> pureLeft . TokenServiceError . mapClientError $ err
   }
   where
-    saveAccessToken PL.ExchangeAccessTokenResponse {..} userId = 
+    saveAccessToken ExchangeAccessTokenResponse {..} userId = 
       do
         now <- liftIO getCurrentTime
         let
@@ -46,8 +46,8 @@ mkTokenService plaidClient tokenStore =
         _ <- tokenStore.saveAccessTokenData accessTokenData
         pureRight TokenExchangeResponse { itemId = accessTokenDataItemId}
 
-mapClientError :: PL.PlaidError -> PlaidApiError
-mapClientError PL.DeserializationError {..} = DecodeFailure errorMsg jsonString
-mapClientError PL.HttpError {..} = CommsError errorMsg
-mapClientError PL.NetworkError {..} = CommsError errorMsg
-mapClientError PL.ApiErrorResponse {..} = PlaidErrorResponse status errorBody
+mapClientError :: PlaidError -> PlaidApiError
+mapClientError DeserializationError {..} = DecodeFailure errorMsg jsonString
+mapClientError HttpError {..} = CommsError errorMsg
+mapClientError NetworkError {..} = CommsError errorMsg
+mapClientError ApiErrorResponse {..} = PlaidErrorResponse status errorBody

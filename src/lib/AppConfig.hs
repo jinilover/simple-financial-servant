@@ -6,7 +6,7 @@ import Refined
 import Servant.Client
 
 import Common.Types
-import qualified Plaid.Types as PL
+import Plaid.Types ( PlaidConfig(..), Endpoint(..) )
 import PlaidSecurity.Types
 import Store.Types
 
@@ -17,7 +17,7 @@ makeClassy ''ServerPort
 data AppConfig = AppConfig 
   { _configServerPort :: ServerPort
   , _configDb :: DbConfig
-  , _configPlaid :: PL.PlaidConfig
+  , _configPlaid :: PlaidConfig
   }
 makeClassy ''AppConfig
 
@@ -29,9 +29,9 @@ loadConfig = parseBaseUrl "https://sandbox.plaid.com" <&> \baseUrl ->
     _configDbConnPoolSize = DbConnPoolSize $$(refineTH 10)
     _configDbSchema = DbSchema "plaid_application_server"
     _configDb = DbConfig {..}
-    _configEndpoint = PL.Endpoint baseUrl
+    _configEndpoint = Endpoint baseUrl
     _configClientId = ClientId "CHANGEME"
     _configSecretKey = SecretKey "CHANGEME"
-    _configPlaid = PL.PlaidConfig {..}
+    _configPlaid = PlaidConfig {..}
   in
     AppConfig {..}
