@@ -15,7 +15,7 @@ bootstrap = bracket mkAppEnv closeAppEnv startServer
 mkAppEnv :: IO AppEnv
 mkAppEnv =
   do
-    _configApp <- loadConfig
+    _configApp <- loadAppConfig
     _envPlaid <- mkPlaidEnv _configApp._configPlaid._configEndpoint
     _envStoreBackendPool <- mkStoreBackendPoolEnv _configApp._configDb
     pure AppEnv {..}

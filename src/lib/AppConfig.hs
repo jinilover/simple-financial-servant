@@ -2,10 +2,14 @@
 module AppConfig where
 
 import Control.Lens
+import Control.Monad.IO.Class
+import qualified Data.Text as T
+import Dhall 
 import Refined
 import Servant.Client
 
 import Common.Types
+import Paths_plaid_application_server ( getDataFileName )
 import Plaid.Types ( PlaidConfig(..), Endpoint(..) )
 import PlaidSecurity.Types
 import Store.Types
@@ -21,17 +25,18 @@ data AppConfig = AppConfig
   }
 makeClassy ''AppConfig
 
-loadConfig :: IO AppConfig
-loadConfig = parseBaseUrl "https://sandbox.plaid.com" <&> \baseUrl ->
-  let
-    _configServerPort = ServerPort $ PosInt $$(refineTH 8001)
-    _configDbConnString = DbConnString "host=localhost port=5432 user=haskell dbname=plaid_application_server_db password=haskell"
-    _configDbConnPoolSize = DbConnPoolSize $ PosInt $$(refineTH 10)
-    _configDbSchema = DbSchema "plaid_application_server"
-    _configDb = DbConfig {..}
-    _configEndpoint = Endpoint baseUrl
-    _configClientId = ClientId "CHANGEME"
-    _configSecretKey = SecretKey "CHANGEME"
-    _configPlaid = PlaidConfig {..}
-  in
-    AppConfig {..}
+loadAppConfig :: MonadIO m => m AppConfig
+loadAppConfig = 
+  do 
+    baseUrl <- liftIO $ parseBaseUrl "https://sandbox.plaid.com"
+    filePath <- liftIO $ getDataFileName "config.dhall"
+    _configDb <- loadDbConfig filePath
+    let
+      _configServerPort = ServerPort $ PosInt $$(refineTH 8001)
+      _configEndpoint = Endpoint baseUrl
+      _configClientId = ClientId "CHANGEME"
+      _configSecretKey = SecretKey "CHANGEME"
+      _configPlaid = PlaidConfig {..}
+    pure AppConfig {..}
+  where
+    loadDbConfig = liftIO . input auto . T.pack
