@@ -43,6 +43,7 @@ maintainer:         columbawong@gmail.com
 -- A copyright notice.
 -- copyright:
 build-type:         Simple
+data-dir:           resources
 
 -- Extra doc files to be distributed with the package, such as a CHANGELOG or a README.
 extra-doc-files:    CHANGELOG.md
@@ -99,6 +100,8 @@ library lib
                     , Store.Types.DbConfig
                     , Store.Types.StoreEnv
                     , Store.Utils
+    autogen-modules:  Paths_plaid_application_server
+    other-modules:    Paths_plaid_application_server
     hs-source-dirs:   src/lib
     build-depends:    base
                     , aeson

@@ -11,6 +11,7 @@ import Refined
 
 newtype PosInt = PosInt 
   { unPosInt :: Refined Positive Int }
+  deriving Show
 
 instance FromDhall PosInt where
   autoWith _ = Decoder
