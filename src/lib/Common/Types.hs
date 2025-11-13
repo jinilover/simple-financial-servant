@@ -7,17 +7,15 @@ import qualified Data.Text as T
 import Dhall
 import Refined
 
--- type PosInt = Refined Positive Int
-
 newtype PosInt = PosInt 
   { unPosInt :: Refined Positive Int }
   deriving Show
 
 instance FromDhall PosInt where
   autoWith _ = Decoder
-    { expected = expected integer
+    { expected = expected natural
     , extract = \expr -> 
-        case extract integer expr of 
+        case extract natural expr of 
           Failure errs -> Failure errs
           Success n -> 
             case refine @Positive (fromIntegral n) of
