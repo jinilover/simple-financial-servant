@@ -104,6 +104,7 @@ library lib
                     , aeson
                     , bytestring
                     , dhall
+                    , either
                     , http-client-tls
                     , http-types
                     , lens
