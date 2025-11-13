@@ -103,6 +103,7 @@ library lib
     build-depends:    base
                     , aeson
                     , bytestring
+                    , dhall
                     , http-client-tls
                     , http-types
                     , lens
