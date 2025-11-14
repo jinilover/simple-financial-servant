@@ -67,6 +67,7 @@ library lib
                     , Common.Types
                     , Common.Utils
                     , Database.Persist.Instances.UUID
+                    , DhallConfig
                     , Domain.Types
                     , Domain.Types.ItemId
                     , Domain.Types.UserId
@@ -107,9 +108,10 @@ library lib
                     , aeson
                     , bytestring
                     , dhall
-                    , either
+                    , exceptions
                     , http-client-tls
                     , http-types
+                    , katip
                     , lens
                     , monad-logger
                     , mtl
@@ -120,9 +122,11 @@ library lib
                     , resource-pool
                     , servant-client
                     , servant-server
+                    , string-conv
                     , text
                     , time
                     , uuid
+                    , validation
                     , warp
 
 executable plaid-application-server

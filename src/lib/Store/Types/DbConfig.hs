@@ -6,14 +6,12 @@ module Store.Types.DbConfig where
 import Control.Lens
 import Data.ByteString
 import Data.Text
-import Data.Text.Encoding
-import Dhall
 
 import Common.Types
 
 newtype DbConnPoolSize = DbConnPoolSize
   { unDbConnPoolSize :: PosInt }
-  deriving (Show, FromDhall) via PosInt
+  deriving Show via PosInt
 makeClassy ''DbConnPoolSize
 
 newtype DbConnString = DbConnString
@@ -21,12 +19,9 @@ newtype DbConnString = DbConnString
   deriving Show via ByteString
 makeClassy ''DbConnString
 
-instance FromDhall DbConnString where
-  autoWith _ = auto @Text <&> DbConnString . encodeUtf8
-
 newtype DbSchema = DbSchema
   { unDbSchema :: Text }
-  deriving (Show, FromDhall) via Text
+  deriving Show via Text
 makeClassy ''DbSchema
 
 data DbConfig = DbConfig 
@@ -34,5 +29,5 @@ data DbConfig = DbConfig
   , _configDbConnPoolSize :: DbConnPoolSize
   , _configDbSchema :: DbSchema
   }
-  deriving (Show, Generic, FromDhall)
+  deriving Show
 makeClassy ''DbConfig

@@ -4,3 +4,4 @@ import Data.Text
 
 newtype ClientId = ClientId
   { unClientId :: Text }
+  deriving Show

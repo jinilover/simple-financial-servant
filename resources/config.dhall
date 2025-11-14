@@ -1,13 +1,33 @@
 let DbConfig =
-  { _configDbConnString : Text
-  , _configDbConnPoolSize : Natural
-  , _configDbSchema : Text
+  { dbConnString : Text
+  , dbConnPoolSize : Natural
+  , dbSchema : Text
   }
 
-let dbConfig : DbConfig =
-  { _configDbConnString = "host=localhost port=5432 user=haskell dbname=plaid_application_server_db password=haskell"
-  , _configDbConnPoolSize = 10
-  , _configDbSchema = "plaid_application_server"
+let PlaidConfig =
+  { endpoint : Text
+  , clientId : Text
+  , secretKey : Text
   }
 
-in dbConfig
+let Config =
+  { serverPort : Natural
+  , db : DbConfig
+  , plaid : PlaidConfig
+  }
+
+let config : Config =
+  { serverPort = 8001
+  , db = 
+      { dbConnString = "host=localhost port=5432 user=haskell dbname=plaid_application_server_db password=haskell"
+      , dbConnPoolSize = 10
+      , dbSchema = "plaid_application_server"
+      }
+  , plaid = 
+      { endpoint = "https://sandbox.plaid.com"
+      , clientId = "CHANGEME"
+      , secretKey = "CHANGEME"
+      }
+  }
+
+in config

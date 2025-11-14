@@ -4,3 +4,4 @@ import Data.Text
 
 newtype SecretKey = SecretKey
   { unSecretKey :: Text }
+  deriving Show

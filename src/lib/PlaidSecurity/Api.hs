@@ -7,7 +7,7 @@ module PlaidSecurity.Api
 where
 
 import Control.Monad.Error.Class
-import qualified Data.Text as T
+import Data.String.Conv
 import Network.HTTP.Types
 import Servant
 
@@ -32,9 +32,9 @@ handlePlaidApiError ::
   MonadError ServerError m =>
   PlaidApiError -> m a
 handlePlaidApiError (DecodeFailure errorMsg jsonString) = 
-  throwError err500 { errReasonPhrase = T.unpack errorMsg, errBody = jsonString }
+  throwError err500 { errReasonPhrase = toS errorMsg, errBody = jsonString }
 handlePlaidApiError (CommsError errorMsg) = 
-  throwError err500 { errReasonPhrase = T.unpack errorMsg }
+  throwError err500 { errReasonPhrase = toS errorMsg }
 handlePlaidApiError (PlaidErrorResponse status errorResponse) = 
   throwError err422 
     { errReasonPhrase = "Plaid returns status code: " <> show status.statusCode

@@ -9,7 +9,7 @@ import Control.Lens
 import Control.Monad.Reader
 import Data.Bifunctor
 import Data.Proxy
-import qualified Data.Text as T
+import Data.String.Conv
 import Servant.Client
 import Servant
 
@@ -47,10 +47,10 @@ handleClientError :: ClientError -> PlaidError
 handleClientError (FailureResponse _ Response {..}) = 
   ApiErrorResponse responseStatusCode responseBody
 handleClientError (UnsupportedContentType mediaType _) = 
-  HttpError { errorMsg = T.pack ("Unsupported mediaType: " <> show mediaType) }
+  HttpError { errorMsg = "Unsupported mediaType: " <> toS (show mediaType) }
 handleClientError (InvalidContentTypeHeader _) = 
   HttpError { errorMsg = "InvalidContentTypeHeader" }
 handleClientError (ConnectionError someException) = 
-  NetworkError { errorMsg = T.pack $ show someException}
+  NetworkError { errorMsg = toS $ show someException}
 handleClientError (DecodeFailure msg Response {responseBody = jsonString} ) = 
   DeserializationError { errorMsg = msg, jsonString }
