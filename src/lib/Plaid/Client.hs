@@ -32,15 +32,14 @@ mkPlaidClient :: forall m r.
   (MonadIO m, MonadReader r m, HasPlaidClientEnv r, HasPlaidConfig r) =>
   PlaidClient m
 mkPlaidClient = PlaidClient 
-  { exchangeAccessToken = \public_token -> 
-      view plaidConfig >>= \PlaidConfig {..} ->
-        let client_id = fromPSClientId _configClientId
-            secret = fromPSSecretKey _configSecretKey
-        -- put `when` in logging when using katip `first (handleClientError "exchange public token for access token")`
-        in  callClient (exchangeAccessTokenCM ExchangeAccessTokenRequest {..}) <&>
-            first handleClientError
+  { exchangeAccessToken = \publicToken -> mkCred >>= \cred ->
+        let req = uncurry ExchangeAccessTokenRequest cred publicToken
+        in  callClient (exchangeAccessTokenCM req) <&> first handleClientError
   }
   where
+    mkCred :: m (ClientId, SecretKey)
+    mkCred = view plaidConfig <&> \PlaidConfig {..} -> (fromPSClientId _configClientId, fromPSSecretKey _configSecretKey)
+
     callClient :: ClientM a -> m (Either ClientError a)
     callClient clientM = view plaidClientEnv >>= liftIO . runClientM clientM . (.unPlaidClientEnv)
         
