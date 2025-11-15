@@ -14,8 +14,10 @@ migrateDb ::
   DbSchema -> Pool SqlBackend -> m ()
 migrateDb DbSchema {..} pool = 
   let createSchema = rawExecute (T.append "CREATE SCHEMA IF NOT EXISTS " unDbSchema) []
+      setSearchPath = rawExecute (T.concat ["SET search_path TO ", unDbSchema]) []
   in 
     liftIO $ traverse_ (`runSqlPool` pool) 
       [ createSchema
+      , setSearchPath
       , runMigration migrateAccessToken
       ]
