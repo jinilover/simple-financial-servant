@@ -1,6 +1,8 @@
 module Bootstrap where
 
 import Control.Exception
+import Katip
+import System.IO (stdout)
 
 import AppConfig
 import AppEnv
@@ -19,6 +21,13 @@ mkAppEnv =
     _envPlaid <- mkPlaidEnv _configApp._configPlaid._configEndpoint
     _envStoreBackendPool <- mkStoreBackendPoolEnv _configApp._configDb
     pure AppEnv {..}
+
+mkLogEnv :: IO LogEnv
+mkLogEnv = 
+  do
+    le <- initLogEnv "plaid-application-serve" "sandbox"
+    handleScribe <- mkHandleScribe ColorIfTerminal stdout (permitItem DebugS) V2
+    registerScribe "stdout" handleScribe defaultScribeSettings le
 
 closeAppEnv :: AppEnv -> IO ()
 closeAppEnv AppEnv {..} =
