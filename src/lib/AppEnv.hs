@@ -2,6 +2,7 @@
 module AppEnv where
 
 import Control.Lens
+import Katip
 
 import AppConfig
 import Plaid.Types
@@ -11,6 +12,7 @@ data AppEnv = AppEnv
   { _configApp :: AppConfig
   , _envPlaid :: PlaidClientEnv
   , _envStoreBackendPool :: StoreBackendPoolEnv
+  , _logEnv :: LogEnv
   }
 makeClassy ''AppEnv
 
