@@ -7,7 +7,7 @@ import qualified PlaidSecurity.Types.PublicToken as PS
 
 newtype PublicToken = PublicToken
   { unPublicToken :: Text }
-  deriving ToJSON
+  deriving (ToJSON, FromJSON)
 
 fromPSPublicToken :: PS.PublicToken -> PublicToken
 fromPSPublicToken = PublicToken . (.unPublicToken)

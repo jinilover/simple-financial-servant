@@ -16,16 +16,19 @@ import Servant
 import Plaid.Types
 
 type PlaidApi = 
-  "item" :> "public_token" :> "exchange" :> ReqBody '[JSON] ExchangeAccessTokenRequest :> Post '[JSON] ExchangeAccessTokenResponse
+        "item" :> "public_token" :> "exchange" :> ReqBody '[JSON] ExchangeAccessTokenRequest :> Post '[JSON] ExchangeAccessTokenResponse
+  :<|>  "sandbox" :> "public_token" :> "create" :> ReqBody '[JSON] CreatePublicTokenRequest :> Post '[JSON] CreatePublicTokenResponse
 
 exchangeAccessTokenCM :: ExchangeAccessTokenRequest -> ClientM ExchangeAccessTokenResponse
+createPublicTokenCM :: CreatePublicTokenRequest -> ClientM CreatePublicTokenResponse
 
-exchangeAccessTokenCM = client (Proxy @PlaidApi)
+exchangeAccessTokenCM :<|> createPublicTokenCM = client (Proxy @PlaidApi)
 
 type PlaidResult = Either PlaidError
 
 data PlaidClient m  = PlaidClient
   { exchangeAccessToken :: PublicToken -> m (PlaidResult ExchangeAccessTokenResponse)
+  , createPublicToken :: m (PlaidResult CreatePublicTokenResponse)
   }
 
 mkPlaidClient :: forall m r.
@@ -33,8 +36,12 @@ mkPlaidClient :: forall m r.
   PlaidClient m
 mkPlaidClient = PlaidClient 
   { exchangeAccessToken = \publicToken -> mkCred >>= \cred ->
-        let req = uncurry ExchangeAccessTokenRequest cred publicToken
-        in  callClient (exchangeAccessTokenCM req) <&> first handleClientError
+      let req = uncurry ExchangeAccessTokenRequest cred publicToken
+      in  callClient (exchangeAccessTokenCM req) <&> first handleClientError
+  , createPublicToken = mkCred >>= \(client_id, secret) ->
+      let institution_id = Institution3
+          initial_products = [Auth]
+      in  callClient (createPublicTokenCM CreatePublicTokenRequest {..}) <&> first handleClientError
   }
   where
     mkCred :: m (ClientId, SecretKey)

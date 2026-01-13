@@ -55,7 +55,7 @@ common warnings
     ghc-options: -Wall -Wredundant-constraints -Wunused-binds -Wunused-imports -Werror
 
 common lang
-    default-extensions: NoFieldSelectors OverloadedRecordDot RecordWildCards OverloadedStrings
+    default-extensions: DuplicateRecordFields NoFieldSelectors OverloadedRecordDot RecordWildCards OverloadedStrings
     default-language: GHC2021
 
 library lib
@@ -76,12 +76,16 @@ library lib
                     , Plaid.Types
                     , Plaid.Types.AccessToken
                     , Plaid.Types.ClientId
+                    , Plaid.Types.CreatePublicTokenRequest
+                    , Plaid.Types.CreatePublicTokenResponse
                     , Plaid.Types.ExchangeAccessTokenRequest
                     , Plaid.Types.ExchangeAccessTokenResponse
+                    , Plaid.Types.InstitutionId
                     , Plaid.Types.ItemId
                     , Plaid.Types.PlaidConfig
                     , Plaid.Types.PlaidEnv
                     , Plaid.Types.PlaidError
+                    , Plaid.Types.Product
                     , Plaid.Types.PublicToken
                     , Plaid.Types.SecretKey
                     , PlaidSecurity.AccessTokenStore
