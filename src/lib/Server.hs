@@ -6,6 +6,7 @@ where
 import Control.Monad.Except
 import Control.Monad.Reader
 import Data.Proxy
+import Data.UUID.V4
 import Refined
 import Servant
 import Network.Wai.Handler.Warp
@@ -31,9 +32,12 @@ server :: AppEnv -> Server PlaidSecurityApi
 server appEnv' = hoistServer (Proxy @PlaidSecurityApi) toHandler serverTApiM
   where
     toHandler :: AppServerM a -> Handler a
-    toHandler = Handler . 
-      runKatipContextT appEnv'._logEnv () "rest-server" . 
-      flip runReaderT appEnv'
+    toHandler appServerM = Handler . runKatipContextT appEnv'._logEnv () "rest-server" $ 
+      do
+        reqId <- liftIO generateReqId
+        katipAddContext (sl "req_id" reqId) (runReaderT appServerM appEnv')
 
     serverTApiM :: ServerT PlaidSecurityApi AppServerM
     serverTApiM = apiServer $ mkTokenService mkPlaidClient mkAccessTokenStore
+
+    generateReqId = nextRandom
