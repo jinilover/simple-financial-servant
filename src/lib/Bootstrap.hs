@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Bootstrap where
 
 import Control.Exception
@@ -19,17 +18,12 @@ mkAppEnv :: IO AppEnv
 mkAppEnv =
   do
     _logEnv <- mkLogEnv
-    runKatipContextT _logEnv () "main" mkKatipContext
-    _configApp <- loadAppConfig
-    _envPlaid <- mkPlaidEnv _configApp._configPlaid._configEndpoint
-    _envStoreBackendPool <- mkStoreBackendPoolEnv _configApp._configDb
-    pure AppEnv {..}
-  where
-    mkKatipContext = 
+    runKatipContextT _logEnv () "main" . flip logExceptionM ErrorS $ 
       do
-        $(logTM) InfoS "Hello Katip"
-        katipAddNamespace "additional_namespace" . katipAddContext (sl "some_context" True) $ 
-          $(logTM) WarningS "Now we're getting fancy"
+        _configApp <- loadAppConfig
+        _envPlaid <- mkPlaidEnv _configApp._configPlaid._configEndpoint
+        _envStoreBackendPool <- mkStoreBackendPoolEnv _configApp._configDb
+        pure AppEnv {..}
 
 mkLogEnv :: IO LogEnv
 mkLogEnv = 

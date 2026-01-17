@@ -8,6 +8,7 @@ where
 
 import Control.Monad.Error.Class
 import Data.String.Conv
+import Katip
 import Network.HTTP.Types
 import Servant
 
@@ -20,13 +21,16 @@ type PlaidSecurityApi = "v1" :>
   )
 
 apiServer ::
-  MonadError ServerError m =>
+  (MonadError ServerError m, KatipContext m) =>
   TokenService m -> ServerT PlaidSecurityApi m
 apiServer tokenService = exchangeToken
   where
-    exchangeToken userId publicToken = tokenService.exchangeToken userId publicToken >>= \case
-      Right resp -> pure resp
-      Left (TokenServiceError apiError) -> handlePlaidApiError apiError
+    exchangeToken userId publicToken = 
+      katipAddNamespace "rest-api" . katipAddContext (sl "user_id" userId) 
+        $ logFM InfoS ("Exchanging token for userId: " <> logStr (show userId)) *>
+      tokenService.exchangeToken userId publicToken >>= \case
+        Right resp -> pure resp
+        Left (TokenServiceError apiError) -> handlePlaidApiError apiError
 
 handlePlaidApiError :: 
   MonadError ServerError m =>

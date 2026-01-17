@@ -45,7 +45,9 @@ mkPlaidClient = PlaidClient
   }
   where
     mkCred :: m (ClientId, SecretKey)
-    mkCred = view plaidConfig <&> \PlaidConfig {..} -> (fromPSClientId _configClientId, fromPSSecretKey _configSecretKey)
+    mkCred = (,) . fromPSClientId <$> 
+      view configClientId <*> 
+      (fromPSSecretKey <$> view configSecretKey)
 
     callClient :: ClientM a -> m (Either ClientError a)
     callClient clientM = view plaidClientEnv >>= liftIO . runClientM clientM . (.unPlaidClientEnv)

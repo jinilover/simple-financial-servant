@@ -3,7 +3,6 @@ module Server
   )
 where
 
-import Control.Lens
 import Control.Monad.Except
 import Control.Monad.Reader
 import Data.Proxy
@@ -18,20 +17,23 @@ import PlaidSecurity.AccessTokenStore
 import PlaidSecurity.Api
 import PlaidSecurity.TokenService
 import Plaid.Client
+import Katip
 
-type AppServerM = ReaderT AppEnv (ExceptT ServerError IO)
+type AppServerM = ReaderT AppEnv (KatipContextT (ExceptT ServerError IO))
 
 startServer :: AppEnv -> IO ()
 startServer appEnv' =
   let app = serve (Proxy @PlaidSecurityApi) (server appEnv')
-      port = unrefine (appEnv' ^. configApp . configServerPort).unServerPort.unPosInt
+      port = unrefine appEnv'._configApp._configServerPort.unServerPort.unPosInt
   in  run port app
 
 server :: AppEnv -> Server PlaidSecurityApi
 server appEnv' = hoistServer (Proxy @PlaidSecurityApi) toHandler serverTApiM
   where
     toHandler :: AppServerM a -> Handler a
-    toHandler = Handler . flip runReaderT appEnv'
+    toHandler = Handler . 
+      runKatipContextT appEnv'._logEnv () "rest-server" . 
+      flip runReaderT appEnv'
 
     serverTApiM :: ServerT PlaidSecurityApi AppServerM
     serverTApiM = apiServer $ mkTokenService mkPlaidClient mkAccessTokenStore

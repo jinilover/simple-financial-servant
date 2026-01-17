@@ -1,3 +1,4 @@
+{-# LANGUAGE DerivingVia #-}
 module Domain.Types.UserId where
 
 import Data.Aeson
@@ -9,4 +10,5 @@ import Database.Persist.Instances.UUID ()
 
 newtype UserId = UserId
   { unUserId :: UUID }
-  deriving (Eq, FromHttpApiData, FromJSON, ToJSON, Ord, PersistField, PersistFieldSql, Read, Show)
+  deriving (Eq, Ord, Read, Show) via UUID
+  deriving (FromHttpApiData, FromJSON, ToJSON, PersistField, PersistFieldSql)
