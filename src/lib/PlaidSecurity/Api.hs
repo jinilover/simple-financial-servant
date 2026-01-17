@@ -25,12 +25,17 @@ apiServer ::
   TokenService m -> ServerT PlaidSecurityApi m
 apiServer tokenService = exchangeToken
   where
-    exchangeToken userId publicToken = 
-      katipAddNamespace "rest-api" . katipAddContext (sl "user_id" userId) 
-        $ logFM InfoS ("Exchanging token for userId: " <> logStr (show userId)) *>
-      tokenService.exchangeToken userId publicToken >>= \case
-        Right resp -> pure resp
-        Left (TokenServiceError apiError) -> handlePlaidApiError apiError
+    exchangeToken userId publicToken = addNameSpace . addUserIdToContext userId $ 
+        logFM InfoS ("Exchanging token for userId: " <> logStr (show userId)) *>
+          tokenService.exchangeToken userId publicToken >>= \case
+            Right resp -> pure resp
+            Left (TokenServiceError apiError) -> 
+              let errMsg = "Fail to exhange token for userId: " <> logStr (show userId) <> ", cause: " <> logStr (show apiError)
+              in  logFM ErrorS errMsg *> handlePlaidApiError apiError
+
+    addNameSpace = katipAddNamespace "rest-api"
+
+    addUserIdToContext userId = katipAddContext (sl "user_id" userId)
 
 handlePlaidApiError :: 
   MonadError ServerError m =>

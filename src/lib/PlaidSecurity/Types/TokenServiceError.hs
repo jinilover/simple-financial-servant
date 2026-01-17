@@ -8,6 +8,7 @@ data PlaidApiError =
     DecodeFailure Text ByteString
   | CommsError Text
   | PlaidErrorResponse Status ByteString
+  deriving Show
 
 newtype TokenServiceError = 
   TokenServiceError PlaidApiError
