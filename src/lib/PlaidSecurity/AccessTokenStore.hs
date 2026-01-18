@@ -11,7 +11,7 @@ import Data.Functor
 import Database.Persist
 import Database.Persist.TH
 
-import Domain.Types
+import Common.Types
 import PlaidSecurity.Types
 import Store.Types
 import Store.Utils

@@ -1,4 +1,4 @@
-module Domain.Types.ItemId where
+module Common.Types.ItemId where
 
 import Data.Aeson
 import Database.Persist.Sql

@@ -3,6 +3,7 @@ module Plaid.Types
   , module Plaid.Types.ClientId
   , module Plaid.Types.CreatePublicTokenRequest
   , module Plaid.Types.CreatePublicTokenResponse
+  , module Plaid.Types.ErrorResponseBody
   , module Plaid.Types.ExchangeAccessTokenRequest
   , module Plaid.Types.ExchangeAccessTokenResponse
   , module Plaid.Types.InstitutionId
@@ -20,6 +21,7 @@ import Plaid.Types.AccessToken
 import Plaid.Types.ClientId
 import Plaid.Types.CreatePublicTokenRequest
 import Plaid.Types.CreatePublicTokenResponse
+import Plaid.Types.ErrorResponseBody
 import Plaid.Types.ExchangeAccessTokenRequest
 import Plaid.Types.ExchangeAccessTokenResponse
 import Plaid.Types.InstitutionId

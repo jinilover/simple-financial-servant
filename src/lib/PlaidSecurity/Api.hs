@@ -7,12 +7,13 @@ module PlaidSecurity.Api
 where
 
 import Control.Monad.Error.Class
+import Data.Aeson
 import Data.String.Conv
 import Katip
 import Network.HTTP.Types
 import Servant
 
-import Domain.Types
+import Common.Types
 import PlaidSecurity.Types
 import PlaidSecurity.TokenService
 
@@ -47,5 +48,7 @@ handlePlaidApiError (CommsError errorMsg) =
 handlePlaidApiError (PlaidErrorResponse status errorResponse) = 
   throwError err422 
     { errReasonPhrase = "Plaid returns status code: " <> show status.statusCode
-    , errBody = errorResponse 
+    , errBody = case errorResponse of 
+        Payload bs -> bs
+        StructuredResp errResp -> encode . toJSON $ errResp
     }

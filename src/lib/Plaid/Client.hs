@@ -7,6 +7,7 @@ where
 
 import Control.Lens
 import Control.Monad.Reader
+import Data.Aeson
 import Data.Bifunctor
 import Data.Proxy
 import Data.String.Conv
@@ -54,7 +55,9 @@ mkPlaidClient = PlaidClient
         
 handleClientError :: ClientError -> PlaidError
 handleClientError (FailureResponse _ Response {..}) = 
-  ApiErrorResponse responseStatusCode responseBody
+  let status = responseStatusCode
+      errorBody = either (const $ Payload responseBody) StructuredResp $ eitherDecode responseBody
+  in ApiErrorResponse {..}
 handleClientError (UnsupportedContentType mediaType _) = 
   HttpError { errorMsg = "Unsupported mediaType: " <> toS (show mediaType) }
 handleClientError (InvalidContentTypeHeader _) = 

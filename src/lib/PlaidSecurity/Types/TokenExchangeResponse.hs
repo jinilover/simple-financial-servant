@@ -5,7 +5,7 @@ module PlaidSecurity.Types.TokenExchangeResponse where
 import Data.Aeson
 import GHC.Generics
 
-import Domain.Types
+import Common.Types
 import qualified Plaid.Types as PL
 
 newtype TokenExchangeResponse = TokenExchangeResponse
@@ -14,4 +14,4 @@ newtype TokenExchangeResponse = TokenExchangeResponse
   deriving anyclass ToJSON
 
 fromExchangeAccessTokenResponse :: PL.ExchangeAccessTokenResponse -> TokenExchangeResponse
-fromExchangeAccessTokenResponse = TokenExchangeResponse . ItemId . (.item_id.unItemId)
+fromExchangeAccessTokenResponse = TokenExchangeResponse . fromPLItemId . (.item_id)

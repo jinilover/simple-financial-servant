@@ -9,7 +9,7 @@ import Control.Monad.IO.Class
 import Data.Time.Clock
   
 import Common.Utils
-import Domain.Types  
+import Common.Types  
 import Plaid.Client
 import Plaid.Types ( PlaidError(..), ExchangeAccessTokenResponse(..), fromPSPublicToken )
 import PlaidSecurity.AccessTokenStore
@@ -50,4 +50,5 @@ mapClientError :: PlaidError -> PlaidApiError
 mapClientError DeserializationError {..} = DecodeFailure errorMsg jsonString
 mapClientError HttpError {..} = CommsError errorMsg
 mapClientError NetworkError {..} = CommsError errorMsg
-mapClientError ApiErrorResponse {..} = PlaidErrorResponse status errorBody
+mapClientError ApiErrorResponse {..} = 
+  PlaidErrorResponse status $ fromPLErrorResponseBody errorBody

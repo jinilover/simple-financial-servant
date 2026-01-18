@@ -65,12 +65,13 @@ library lib
                     , AppEnv
                     , Bootstrap
                     , Common.Types
+                    , Common.Types.ErrorResponseBody
+                    , Common.Types.ItemId
+                    , Common.Types.PosInt
+                    , Common.Types.UserId
                     , Common.Utils
                     , Database.Persist.Instances.UUID
                     , DhallConfig
-                    , Domain.Types
-                    , Domain.Types.ItemId
-                    , Domain.Types.UserId
                     , Plaid.Client
                     , Plaid.Resource
                     , Plaid.Types

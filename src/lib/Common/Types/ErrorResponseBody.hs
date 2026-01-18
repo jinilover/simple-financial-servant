@@ -1,0 +1,72 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DerivingVia #-}
+module Common.Types.ErrorResponseBody where
+
+import Data.Aeson
+import Data.ByteString.Lazy
+import Data.Text
+import GHC.Generics
+
+import qualified Plaid.Types.ErrorResponseBody as PL
+
+data ErrorResponseBody = 
+    Payload ByteString
+  | StructuredResp ErrorResponse
+  deriving Show
+
+fromPLErrorResponseBody :: PL.ErrorResponseBody -> ErrorResponseBody
+fromPLErrorResponseBody (PL.Payload bs) = Payload bs
+fromPLErrorResponseBody (PL.StructuredResp errResp) = StructuredResp $ fromPLErrorResponse errResp
+
+data ErrorResponse = ErrorResponse {
+      display_message :: Maybe DisplayMessage
+    , error_code :: ErrorCode
+    , error_message :: ErrorMessage
+    , error_type :: ErrorType
+    , request_id :: RequestId
+    }
+  deriving (Show, Generic, ToJSON)
+
+fromPLErrorResponse :: PL.ErrorResponse -> ErrorResponse
+fromPLErrorResponse PL.ErrorResponse {..} = 
+  ErrorResponse 
+    (fromPLDisplayMessage <$> display_message) 
+    (fromPLErrorCode error_code)
+    (fromPLErrorMessage error_message)
+    (fromPLErrorType error_type)
+    (fromPLRequestId request_id)
+
+newtype DisplayMessage = DisplayMessage
+  { unDisplayMessage :: Text }
+  deriving (ToJSON, Show) via Text
+
+fromPLDisplayMessage :: PL.DisplayMessage -> DisplayMessage
+fromPLDisplayMessage = DisplayMessage . (.unDisplayMessage)  
+
+newtype ErrorCode = ErrorCode
+  { unErrorCode :: Text }
+  deriving (ToJSON, Show) via Text
+
+fromPLErrorCode :: PL.ErrorCode -> ErrorCode
+fromPLErrorCode = ErrorCode . (.unErrorCode)  
+
+newtype ErrorMessage = ErrorMessage
+  { unErrorMessage :: Text }
+  deriving (ToJSON, Show) via Text
+
+fromPLErrorMessage :: PL.ErrorMessage -> ErrorMessage
+fromPLErrorMessage = ErrorMessage . (.unErrorMessage)  
+
+newtype ErrorType = ErrorType
+  { unErrorType :: Text }
+  deriving (ToJSON, Show) via Text
+
+fromPLErrorType :: PL.ErrorType -> ErrorType
+fromPLErrorType = ErrorType . (.unErrorType)  
+
+newtype RequestId = RequestId
+  { unRequestId :: Text }
+  deriving (ToJSON, Show) via Text
+
+fromPLRequestId :: PL.RequestId -> RequestId
+fromPLRequestId = RequestId . (.unRequestId)  

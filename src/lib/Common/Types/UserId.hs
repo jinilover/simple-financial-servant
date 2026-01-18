@@ -1,5 +1,5 @@
 {-# LANGUAGE DerivingVia #-}
-module Domain.Types.UserId where
+module Common.Types.UserId where
 
 import Data.Aeson
 import Data.UUID
