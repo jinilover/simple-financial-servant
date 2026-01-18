@@ -105,6 +105,7 @@ library lib
                     , Store.Resource
                     , Store.Types
                     , Store.Types.DbConfig
+                    , Store.Types.EssentialColumns
                     , Store.Types.StoreEnv
                     , Store.Utils
     autogen-modules:  Paths_plaid_application_server
