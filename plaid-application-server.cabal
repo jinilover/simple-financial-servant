@@ -78,6 +78,7 @@ library lib
                     , Plaid.Types.ClientId
                     , Plaid.Types.CreatePublicTokenRequest
                     , Plaid.Types.CreatePublicTokenResponse
+                    , Plaid.Types.ErrorResponseBody
                     , Plaid.Types.ExchangeAccessTokenRequest
                     , Plaid.Types.ExchangeAccessTokenResponse
                     , Plaid.Types.InstitutionId
