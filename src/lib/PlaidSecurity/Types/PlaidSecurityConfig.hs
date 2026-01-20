@@ -13,14 +13,14 @@ newtype MatchedErrorWord = MatchedErrorWord
   { unMatchedErrorWord :: Text }
   deriving Show via Text
 
-data RecreatePublicTokenConfig = RecreatePublicTokenConfig
+data CreatePublicTokenConfig = CreatePublicTokenConfig
   { _configMatchedErrorCode :: MatchedErrorCode
   , _configMatchedErrorWords :: [MatchedErrorWord]
   } 
   deriving Show
 
 data PlaidSecurityConfig = PlaidSecurityConfig
-  { _configRecreatePublicTokens :: [RecreatePublicTokenConfig]
+  { _configCreatePublicTokens :: [CreatePublicTokenConfig]
   }
   deriving Show
 makeClassy ''PlaidSecurityConfig

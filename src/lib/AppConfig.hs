@@ -63,11 +63,11 @@ validateDhallConfig (DhallConfig port store plaid plaidSecurity) =
   where
     validateDhallPlaidSecurity :: DhallPlaidSecurityConfig -> Validation (NonEmpty Text) PlaidSecurityConfig
     validateDhallPlaidSecurity DhallPlaidSecurityConfig {..} = 
-      PlaidSecurityConfig <$> traverse validateDhallRecreatePublicToken recreatePublicTokens
+      PlaidSecurityConfig <$> traverse validateDhallCreatePublicToken createPublicTokens
 
-    validateDhallRecreatePublicToken :: DhallRecreatePublicTokenConfig -> Validation (NonEmpty Text) RecreatePublicTokenConfig
-    validateDhallRecreatePublicToken DhallRecreatePublicTokenConfig {..} = 
-      RecreatePublicTokenConfig
+    validateDhallCreatePublicToken :: DhallCreatePublicTokenConfig -> Validation (NonEmpty Text) CreatePublicTokenConfig
+    validateDhallCreatePublicToken DhallCreatePublicTokenConfig {..} = 
+      CreatePublicTokenConfig
         <$> fmap MatchedErrorCode (nonEmpty "matchedErrorCode" matchedErrorCode)
         <*> traverse (fmap MatchedErrorWord . nonEmpty "matchErrorWords") matchedErrorWords
 

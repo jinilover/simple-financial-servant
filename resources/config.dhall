@@ -10,13 +10,13 @@ let PlaidConfig =
   , secretKey : Text
   }
 
-let RecreatePublicTokenConfig =
+let CreatePublicTokenConfig =
   { matchedErrorCode : Text
   , matchedErrorWords : List Text
   }
 
 let PlaidSecurityConfig =
-  { recreatePublicTokens : List RecreatePublicTokenConfig
+  { createPublicTokens : List CreatePublicTokenConfig
   }
 
 let Config =
@@ -39,7 +39,7 @@ let config : Config =
       , secretKey = "CHANGEME"
       }
   , plaidSecurity =
-      { recreatePublicTokens = 
+      { createPublicTokens = 
         [ { matchedErrorCode = "INVALID_PUBLIC_TOKEN"
           , matchedErrorWords = ["public token", "expired"]
           }

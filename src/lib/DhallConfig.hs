@@ -22,14 +22,14 @@ data DhallStoreConfig = DhallStoreConfig
   }
   deriving (Show, Generic, FromDhall)
 
-data DhallRecreatePublicTokenConfig = DhallRecreatePublicTokenConfig
+data DhallCreatePublicTokenConfig = DhallCreatePublicTokenConfig
   { matchedErrorCode :: Text
   , matchedErrorWords :: [Text]
   } 
   deriving (Show, Generic, FromDhall)
 
 data DhallPlaidSecurityConfig = DhallPlaidSecurityConfig
-  { recreatePublicTokens :: [DhallRecreatePublicTokenConfig]
+  { createPublicTokens :: [DhallCreatePublicTokenConfig]
   } 
   deriving (Show, Generic, FromDhall)
 

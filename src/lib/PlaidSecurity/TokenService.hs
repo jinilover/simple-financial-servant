@@ -34,8 +34,8 @@ mkTokenService plaidClient tokenStore =
   TokenService
   { exchangeToken = \userId publicToken -> 
       do 
-        recreatePublicTokenConfigs <- view (plaidSecurityConfig . configRecreatePublicTokens)
-        addNameSpace . callForAccessToken 0 recreatePublicTokenConfigs userId . fromPSPublicToken $ publicToken
+        createPublicTokenConfigs <- view (plaidSecurityConfig . configCreatePublicTokens)
+        addNameSpace . callForAccessToken 0 createPublicTokenConfigs userId . fromPSPublicToken $ publicToken
   }
   where
     saveAccessToken ExchangeAccessTokenResponse {..} userId = 
@@ -51,19 +51,19 @@ mkTokenService plaidClient tokenStore =
         _ <- tokenStore.saveAccessTokenData accessTokenData
         pureRight TokenExchangeResponse { itemId = accessTokenDataItemId}
 
-    callForAccessToken :: Int -> [RecreatePublicTokenConfig] -> UserId -> PL.PublicToken -> m (Either TokenServiceError TokenExchangeResponse)
-    callForAccessToken count recreatePublicTokenConfigs userId publicToken = 
+    callForAccessToken :: Int -> [CreatePublicTokenConfig] -> UserId -> PL.PublicToken -> m (Either TokenServiceError TokenExchangeResponse)
+    callForAccessToken count createPublicTokenConfigs userId publicToken = 
       plaidClient.exchangeAccessToken publicToken >>= \case
         Right accessTokenResp -> 
           saveAccessToken accessTokenResp userId
         Left accessTokenErr ->
-          case (count, recreatePublicTokenRequired accessTokenErr recreatePublicTokenConfigs) of
+          case (count, createPublicTokenRequired accessTokenErr createPublicTokenConfigs) of
             (0, True) -> 
               logFM WarningS "Fail to exchange an access token, try creating public token first" *>
               plaidClient.createPublicToken >>= \case 
                 Right CreatePublicTokenResponse {..} -> 
                   logFM InfoS "Created a new public token, trying to exchange an access token again" *>
-                  callForAccessToken (count + 1) recreatePublicTokenConfigs userId public_token
+                  callForAccessToken (count + 1) createPublicTokenConfigs userId public_token
                 Left publicTokenErr -> 
                   logFM ErrorS "Fails to create a new public token, cannot proceed to exchange an access token" $>
                   clientToServiceError publicTokenErr
@@ -75,15 +75,15 @@ mkTokenService plaidClient tokenStore =
 
     clientToServiceError = Left . TokenServiceError . mapClientError
 
-    recreatePublicTokenRequired (ApiErrorResponse _ (StructuredResp errResp)) configs =
-      flip any configs $ \RecreatePublicTokenConfig {..} ->
+    createPublicTokenRequired (ApiErrorResponse _ (StructuredResp errResp)) configs =
+      flip any configs $ \CreatePublicTokenConfig {..} ->
         let respErrorCode = T.toLower errResp.error_code.unErrorCode
             matchedErrorCode = T.toLower _configMatchedErrorCode.unMatchedErrorCode
             respErrorMsg = T.toLower errResp.error_message.unErrorMessage
             matchedErrorWords = map (T.toLower . (.unMatchedErrorWord)) _configMatchedErrorWords
         in  respErrorCode == matchedErrorCode &&
             all (`T.isInfixOf` respErrorMsg) matchedErrorWords
-    recreatePublicTokenRequired _ _ = False
+    createPublicTokenRequired _ _ = False
 
     addNameSpace = katipAddNamespace "token-service"
 
