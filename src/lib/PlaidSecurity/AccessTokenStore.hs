@@ -33,7 +33,7 @@ data AccessTokenStore m = AccessTokenStore
   }
 
 mkAccessTokenStore ::
-  (MonadIO m, MonadReader r m, HasStoreBackendPoolEnv r) =>
+  (MonadIO m, MonadReader r m, HasStoreDbPoolEnv r) =>
   AccessTokenStore m
 mkAccessTokenStore = AccessTokenStore 
   { saveAccessTokenData = \accessTokenData -> runQueryWithPool $

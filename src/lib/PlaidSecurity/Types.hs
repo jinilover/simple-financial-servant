@@ -1,6 +1,7 @@
 module PlaidSecurity.Types 
   ( module PlaidSecurity.Types.AccessToken
   , module PlaidSecurity.Types.ClientId
+  , module PlaidSecurity.Types.PlaidSecurityConfig
   , module PlaidSecurity.Types.PublicToken
   , module PlaidSecurity.Types.SecretKey
   , module PlaidSecurity.Types.TokenExchangeResponse
@@ -10,6 +11,7 @@ where
 
 import PlaidSecurity.Types.AccessToken
 import PlaidSecurity.Types.ClientId
+import PlaidSecurity.Types.PlaidSecurityConfig
 import PlaidSecurity.Types.PublicToken
 import PlaidSecurity.Types.SecretKey
 import PlaidSecurity.Types.TokenExchangeResponse

@@ -5,6 +5,6 @@ import Control.Lens
 import Data.Pool
 import Database.Persist.Postgresql
 
-newtype StoreBackendPoolEnv = StoreBackendPoolEnv
-  { unStoreBackendPoolEnv :: Pool SqlBackend }
-makeClassy ''StoreBackendPoolEnv
+newtype StoreDbPoolEnv = StoreDbPoolEnv
+  { unStoreDbPoolEnv :: Pool SqlBackend }
+makeClassy ''StoreDbPoolEnv

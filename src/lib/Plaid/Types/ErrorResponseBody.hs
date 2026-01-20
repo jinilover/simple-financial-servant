@@ -8,6 +8,8 @@ import Data.ByteString.Lazy
 import Data.Text
 import GHC.Generics
 
+import Plaid.Types.RequestId
+
 data ErrorResponseBody = 
     Payload ByteString
   | StructuredResp ErrorResponse
@@ -40,8 +42,4 @@ newtype ErrorMessage = ErrorMessage
 
 newtype ErrorType = ErrorType
   { unErrorType :: Text }
-  deriving (FromJSON, Show) via Text
-
-newtype RequestId = RequestId
-  { unRequestId :: Text }
   deriving (FromJSON, Show) via Text

@@ -5,32 +5,37 @@ module PlaidSecurity.TokenService
   )
 where
 
+import Control.Lens
 import Control.Monad.IO.Class
+import Control.Monad.Reader
+import Data.Functor
+import qualified Data.Text as T
 import Data.Time.Clock
   
 import Common.Utils
-import Common.Types  
+import Common.Types    hiding (StructuredResp, ErrorResponse)
 import Plaid.Client
-import Plaid.Types ( PlaidError(..), ExchangeAccessTokenResponse(..), fromPSPublicToken )
+import Plaid.Types as PL
 import PlaidSecurity.AccessTokenStore
-import PlaidSecurity.Types 
+import PlaidSecurity.Types as PS
 import Store.Types
+import Katip
 
 newtype TokenService m = TokenService 
-  { exchangeToken :: UserId -> PublicToken -> m (Either TokenServiceError TokenExchangeResponse) 
+  { exchangeToken :: UserId -> PS.PublicToken -> m (Either TokenServiceError TokenExchangeResponse) 
   }
 
-mkTokenService :: 
-  MonadIO m =>
+mkTokenService :: forall r m.
+  (MonadReader r m, HasPlaidSecurityConfig r, KatipContext m) =>
   PlaidClient m ->
   AccessTokenStore m ->
   TokenService m 
 mkTokenService plaidClient tokenStore = 
   TokenService
   { exchangeToken = \userId publicToken -> 
-      plaidClient.exchangeAccessToken (fromPSPublicToken publicToken) >>= \case
-        Right resp -> saveAccessToken resp userId
-        Left err -> pureLeft . TokenServiceError . mapClientError $ err
+      do 
+        recreatePublicTokenConfigs <- view (plaidSecurityConfig . configRecreatePublicTokens)
+        addNameSpace . callForAccessToken 0 recreatePublicTokenConfigs userId . fromPSPublicToken $ publicToken
   }
   where
     saveAccessToken ExchangeAccessTokenResponse {..} userId = 
@@ -45,6 +50,42 @@ mkTokenService plaidClient tokenStore =
           accessTokenData = AccessTokenData {..}
         _ <- tokenStore.saveAccessTokenData accessTokenData
         pureRight TokenExchangeResponse { itemId = accessTokenDataItemId}
+
+    callForAccessToken :: Int -> [RecreatePublicTokenConfig] -> UserId -> PL.PublicToken -> m (Either TokenServiceError TokenExchangeResponse)
+    callForAccessToken count recreatePublicTokenConfigs userId publicToken = 
+      plaidClient.exchangeAccessToken publicToken >>= \case
+        Right accessTokenResp -> 
+          saveAccessToken accessTokenResp userId
+        Left accessTokenErr ->
+          case (count, recreatePublicTokenRequired accessTokenErr recreatePublicTokenConfigs) of
+            (0, True) -> 
+              logFM WarningS "Fail to exchange an access token, try creating public token first" *>
+              plaidClient.createPublicToken >>= \case 
+                Right CreatePublicTokenResponse {..} -> 
+                  logFM InfoS "Created a new public token, trying to exchange an access token again" *>
+                  callForAccessToken (count + 1) recreatePublicTokenConfigs userId public_token
+                Left publicTokenErr -> 
+                  logFM ErrorS "Fails to create a new public token, cannot proceed to exchange an access token" $>
+                  clientToServiceError publicTokenErr
+            (0, False) -> 
+              pure $ clientToServiceError accessTokenErr
+            (_, _) -> 
+              logFM ErrorS "It has re-created the public token but still fails to exchange an access token" $> 
+              clientToServiceError accessTokenErr
+
+    clientToServiceError = Left . TokenServiceError . mapClientError
+
+    recreatePublicTokenRequired (ApiErrorResponse _ (StructuredResp errResp)) configs =
+      flip any configs $ \RecreatePublicTokenConfig {..} ->
+        let respErrorCode = T.toLower errResp.error_code.unErrorCode
+            matchedErrorCode = T.toLower _configMatchedErrorCode.unMatchedErrorCode
+            respErrorMsg = T.toLower errResp.error_message.unErrorMessage
+            matchedErrorWords = map (T.toLower . (.unMatchedErrorWord)) _configMatchedErrorWords
+        in  respErrorCode == matchedErrorCode &&
+            all (`T.isInfixOf` respErrorMsg) matchedErrorWords
+    recreatePublicTokenRequired _ _ = False
+
+    addNameSpace = katipAddNamespace "token-service"
 
 mapClientError :: PlaidError -> PlaidApiError
 mapClientError DeserializationError {..} = DecodeFailure errorMsg jsonString

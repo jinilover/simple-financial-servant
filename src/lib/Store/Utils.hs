@@ -8,8 +8,8 @@ import Database.Persist.Sql
 import Store.Types
 
 runQueryWithPool :: 
-  (MonadIO m, MonadReader r m, HasStoreBackendPoolEnv r) =>
+  (MonadIO m, MonadReader r m, HasStoreDbPoolEnv r) =>
   ReaderT SqlBackend IO a -> m a
 runQueryWithPool query =
-  view storeBackendPoolEnv <&> (.unStoreBackendPoolEnv) >>=
+  view storeDbPoolEnv <&> (.unStoreDbPoolEnv) >>=
     liftIO . runSqlPool query

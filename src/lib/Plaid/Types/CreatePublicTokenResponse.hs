@@ -4,11 +4,11 @@ module Plaid.Types.CreatePublicTokenResponse where
 import Data.Aeson
 import GHC.Generics
 
-import Plaid.Types.ItemId
+import Plaid.Types.RequestId
 import Plaid.Types.PublicToken
 
 data CreatePublicTokenResponse = CreatePublicTokenResponse
   { public_token :: PublicToken
-  , item_id :: ItemId
+  , request_id :: RequestId
   }
   deriving ( Generic, FromJSON )

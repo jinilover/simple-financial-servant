@@ -2,6 +2,7 @@ module Common.Types
   ( module Common.Types.ErrorResponseBody
   , module Common.Types.ItemId
   , module Common.Types.PosInt
+  , module Common.Types.RequestId
   , module Common.Types.UserId
   )
 where
@@ -9,4 +10,5 @@ where
 import Common.Types.ErrorResponseBody
 import Common.Types.ItemId
 import Common.Types.PosInt
+import Common.Types.RequestId
 import Common.Types.UserId

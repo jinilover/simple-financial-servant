@@ -13,6 +13,7 @@ module Plaid.Types
   , module Plaid.Types.PlaidError
   , module Plaid.Types.Product
   , module Plaid.Types.PublicToken
+  , module Plaid.Types.RequestId
   , module Plaid.Types.SecretKey
   )
 where
@@ -31,4 +32,5 @@ import Plaid.Types.PlaidEnv
 import Plaid.Types.PlaidError
 import Plaid.Types.Product
 import Plaid.Types.PublicToken
+import Plaid.Types.RequestId
 import Plaid.Types.SecretKey

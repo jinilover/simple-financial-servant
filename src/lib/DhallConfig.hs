@@ -15,16 +15,28 @@ data DhallPlaidConfig = DhallPlaidConfig
   }
   deriving (Show, Generic, FromDhall)
 
-data DhallDbConfig = DhallDbConfig
+data DhallStoreConfig = DhallStoreConfig
   { dbConnString :: Text
   , dbConnPoolSize :: Natural
   , dbSchema :: Text
   }
   deriving (Show, Generic, FromDhall)
 
+data DhallRecreatePublicTokenConfig = DhallRecreatePublicTokenConfig
+  { matchedErrorCode :: Text
+  , matchedErrorWords :: [Text]
+  } 
+  deriving (Show, Generic, FromDhall)
+
+data DhallPlaidSecurityConfig = DhallPlaidSecurityConfig
+  { recreatePublicTokens :: [DhallRecreatePublicTokenConfig]
+  } 
+  deriving (Show, Generic, FromDhall)
+
 data DhallConfig = DhallConfig
   { serverPort :: Natural
-  , db :: DhallDbConfig
+  , store :: DhallStoreConfig
   , plaid :: DhallPlaidConfig
+  , plaidSecurity :: DhallPlaidSecurityConfig
   }
   deriving (Show, Generic, FromDhall)

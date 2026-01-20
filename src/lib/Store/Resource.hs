@@ -12,10 +12,10 @@ import Common.Types
 import Store.Migration
 import Store.Types
 
-mkStoreBackendPoolEnv :: 
+mkStoreDbPoolEnv :: 
   MonadIO m =>
-  DbConfig -> m StoreBackendPoolEnv
-mkStoreBackendPoolEnv DbConfig {..} =
+  StoreConfig -> m StoreDbPoolEnv
+mkStoreDbPoolEnv StoreConfig {..} =
   do
     let poolSize = unrefine _configDbConnPoolSize.unDbConnPoolSize.unPosInt
         -- Append search_path to connection string so all connections use the correct schema
@@ -24,8 +24,8 @@ mkStoreBackendPoolEnv DbConfig {..} =
         connStringWithSchema = BS.append _configDbConnString.unDbConnString $ toS searchPathOption
     pool <- liftIO . runNoLoggingT $ createPostgresqlPool connStringWithSchema poolSize
     migrateDb _configDbSchema pool
-    pure $ StoreBackendPoolEnv pool
+    pure $ StoreDbPoolEnv pool
 
-closeStoreBackendPoolEnv :: StoreBackendPoolEnv -> IO ()
-closeStoreBackendPoolEnv StoreBackendPoolEnv {..} = 
-  destroyAllResources unStoreBackendPoolEnv
+closeStoreDbPoolEnv :: StoreDbPoolEnv -> IO ()
+closeStoreDbPoolEnv StoreDbPoolEnv {..} = 
+  destroyAllResources unStoreDbPoolEnv

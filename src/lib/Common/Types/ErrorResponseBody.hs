@@ -7,7 +7,8 @@ import Data.ByteString.Lazy
 import Data.Text
 import GHC.Generics
 
-import qualified Plaid.Types.ErrorResponseBody as PL
+import qualified Plaid.Types as PL
+import Common.Types.RequestId
 
 data ErrorResponseBody = 
     Payload ByteString
@@ -63,10 +64,3 @@ newtype ErrorType = ErrorType
 
 fromPLErrorType :: PL.ErrorType -> ErrorType
 fromPLErrorType = ErrorType . (.unErrorType)  
-
-newtype RequestId = RequestId
-  { unRequestId :: Text }
-  deriving (ToJSON, Show) via Text
-
-fromPLRequestId :: PL.RequestId -> RequestId
-fromPLRequestId = RequestId . (.unRequestId)  

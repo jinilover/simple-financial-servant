@@ -68,6 +68,7 @@ library lib
                     , Common.Types.ErrorResponseBody
                     , Common.Types.ItemId
                     , Common.Types.PosInt
+                    , Common.Types.RequestId
                     , Common.Types.UserId
                     , Common.Utils
                     , Database.Persist.Instances.UUID
@@ -89,6 +90,7 @@ library lib
                     , Plaid.Types.PlaidError
                     , Plaid.Types.Product
                     , Plaid.Types.PublicToken
+                    , Plaid.Types.RequestId
                     , Plaid.Types.SecretKey
                     , PlaidSecurity.AccessTokenStore
                     , PlaidSecurity.Api
@@ -96,6 +98,7 @@ library lib
                     , PlaidSecurity.Types
                     , PlaidSecurity.Types.AccessToken
                     , PlaidSecurity.Types.ClientId
+                    , PlaidSecurity.Types.PlaidSecurityConfig
                     , PlaidSecurity.Types.PublicToken
                     , PlaidSecurity.Types.SecretKey
                     , PlaidSecurity.Types.TokenExchangeResponse
@@ -104,7 +107,7 @@ library lib
                     , Store.Migration
                     , Store.Resource
                     , Store.Types
-                    , Store.Types.DbConfig
+                    , Store.Types.StoreConfig
                     , Store.Types.EssentialColumns
                     , Store.Types.StoreEnv
                     , Store.Utils

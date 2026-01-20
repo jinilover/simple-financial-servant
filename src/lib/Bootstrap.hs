@@ -22,7 +22,7 @@ mkAppEnv =
       do
         _configApp <- loadAppConfig
         _envPlaid <- mkPlaidEnv _configApp._configPlaid._configEndpoint
-        _envStoreBackendPool <- mkStoreBackendPoolEnv _configApp._configDb
+        _envStoreDbPool <- mkStoreDbPoolEnv _configApp._configStore
         pure AppEnv {..}
 
 mkLogEnv :: IO LogEnv
@@ -35,4 +35,4 @@ mkLogEnv =
 closeAppEnv :: AppEnv -> IO ()
 closeAppEnv AppEnv {..} =
   closeScribes _logEnv *>
-  closeStoreBackendPoolEnv _envStoreBackendPool
+  closeStoreDbPoolEnv _envStoreDbPool

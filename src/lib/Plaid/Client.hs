@@ -1,20 +1,24 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 module Plaid.Client 
   ( mkPlaidClient
   , PlaidClient(..)
   )
 where
 
+import Common.Utils
 import Control.Lens
 import Control.Monad.Reader
 import Data.Aeson
 import Data.Bifunctor
 import Data.Proxy
 import Data.String.Conv
+import Data.Text
 import Servant.Client
 import Servant
 
 import Plaid.Types
+import Katip
 
 type PlaidApi = 
         "item" :> "public_token" :> "exchange" :> ReqBody '[JSON] ExchangeAccessTokenRequest :> Post '[JSON] ExchangeAccessTokenResponse
@@ -33,25 +37,31 @@ data PlaidClient m  = PlaidClient
   }
 
 mkPlaidClient :: forall m r.
-  (MonadIO m, MonadReader r m, HasPlaidClientEnv r, HasPlaidConfig r) =>
+  (MonadReader r m, HasPlaidClientEnv r, HasPlaidConfig r, KatipContext m) =>
   PlaidClient m
 mkPlaidClient = PlaidClient 
   { exchangeAccessToken = \publicToken -> mkCred >>= \cred ->
       let req = uncurry ExchangeAccessTokenRequest cred publicToken
-      in  callClient (exchangeAccessTokenCM req) <&> first handleClientError
+      in  callClient "Exchanging access token" (exchangeAccessTokenCM req) <&> first handleClientError
   , createPublicToken = mkCred >>= \(client_id, secret) ->
       let institution_id = Institution3
           initial_products = [Auth]
-      in  callClient (createPublicTokenCM CreatePublicTokenRequest {..}) <&> first handleClientError
+      in  callClient "Creating public token" (createPublicTokenCM CreatePublicTokenRequest {..}) <&> first handleClientError
   }
   where
     mkCred :: m (ClientId, SecretKey)
-    mkCred = (,) . fromPSClientId <$> 
-      view configClientId <*> 
-      (fromPSSecretKey <$> view configSecretKey)
+    mkCred = (,)
+        <$> fmap fromPSClientId (view configClientId)
+        <*> fmap fromPSSecretKey (view configSecretKey)
 
-    callClient :: ClientM a -> m (Either ClientError a)
-    callClient clientM = view plaidClientEnv >>= liftIO . runClientM clientM . (.unPlaidClientEnv)
+    callClient :: Text -> ClientM a -> m (Either ClientError a)
+    callClient action clientM = katipAddNamespace "client-plaid" $
+      do
+        logFM InfoS $ logStr action 
+        clientEnv <- (.unPlaidClientEnv) <$> view plaidClientEnv
+        flip tap (liftIO $ runClientM clientM clientEnv) $ \case
+          Right _ -> logFM InfoS "Successfully received response from plaid"
+          Left err -> logFM ErrorS $ "Fail to receive response from plaid, cause: " <> logStr (show err)
         
 handleClientError :: ClientError -> PlaidError
 handleClientError (FailureResponse _ Response {..}) = 

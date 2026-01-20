@@ -27,12 +27,12 @@ apiServer ::
 apiServer tokenService = exchangeToken
   where
     exchangeToken userId publicToken = addNameSpace . addUserIdToContext userId $ 
-        logFM InfoS ("Exchanging token for userId: " <> logStr (show userId)) *>
-          tokenService.exchangeToken userId publicToken >>= \case
-            Right resp -> pure resp
-            Left (TokenServiceError apiError) -> 
-              let errMsg = "Fail to exhange token for userId: " <> logStr (show userId) <> ", cause: " <> logStr (show apiError)
-              in  logFM ErrorS errMsg *> handlePlaidApiError apiError
+      logFM InfoS ("Exchanging access token for userId: " <> logStr (show userId)) *>
+      tokenService.exchangeToken userId publicToken >>= \case
+        Right resp -> pure resp
+        Left (TokenServiceError apiError) -> 
+          let errMsg = "Fail to exhange access token for userId: " <> logStr (show userId) <> ", cause: " <> logStr (show apiError)
+          in  logFM ErrorS errMsg *> handlePlaidApiError apiError
 
     addNameSpace = katipAddNamespace "rest-api"
 

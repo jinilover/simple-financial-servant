@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DerivingVia #-}
 module AppConfig 
   ( loadAppConfig
   , AppConfig(..)
@@ -34,13 +34,14 @@ newtype ConfigException = ConfigException Text
 
 newtype ServerPort = ServerPort
   { unServerPort :: PosInt }
-  deriving Show
+  deriving Show via PosInt
 makeClassy ''ServerPort
 
 data AppConfig = AppConfig 
   { _configServerPort :: ServerPort
-  , _configDb :: DbConfig
+  , _configStore :: StoreConfig
   , _configPlaid :: PlaidConfig
+  , _configPlaidSecurity :: PlaidSecurityConfig
   }
   deriving Show
 makeClassy ''AppConfig
@@ -53,22 +54,33 @@ loadAppConfig =
     validation (throwM . ConfigException . T.intercalate "\n" . toList) pure $ validateDhallConfig dhallConfig
 
 validateDhallConfig :: DhallConfig -> Validation (NonEmpty Text) AppConfig
-validateDhallConfig (DhallConfig port db plaid) = 
+validateDhallConfig (DhallConfig port store plaid plaidSecurity) = 
     AppConfig
       <$> fmap ServerPort (positive "serverPort" port)
-      <*> validateDhallDbConfig db
-      <*> validateDhallPlaidConfig plaid
+      <*> validateDhallStore store
+      <*> validateDhallPlaid plaid
+      <*> validateDhallPlaidSecurity plaidSecurity
   where
-    validateDhallPlaidConfig :: DhallPlaidConfig -> Validation (NonEmpty Text) PlaidConfig
-    validateDhallPlaidConfig DhallPlaidConfig {..} = 
+    validateDhallPlaidSecurity :: DhallPlaidSecurityConfig -> Validation (NonEmpty Text) PlaidSecurityConfig
+    validateDhallPlaidSecurity DhallPlaidSecurityConfig {..} = 
+      PlaidSecurityConfig <$> traverse validateDhallRecreatePublicToken recreatePublicTokens
+
+    validateDhallRecreatePublicToken :: DhallRecreatePublicTokenConfig -> Validation (NonEmpty Text) RecreatePublicTokenConfig
+    validateDhallRecreatePublicToken DhallRecreatePublicTokenConfig {..} = 
+      RecreatePublicTokenConfig
+        <$> fmap MatchedErrorCode (nonEmpty "matchedErrorCode" matchedErrorCode)
+        <*> traverse (fmap MatchedErrorWord . nonEmpty "matchErrorWords") matchedErrorWords
+
+    validateDhallPlaid :: DhallPlaidConfig -> Validation (NonEmpty Text) PlaidConfig
+    validateDhallPlaid DhallPlaidConfig {..} = 
       PlaidConfig
         <$> fmap Endpoint (validateUrl endpoint)
         <*> fmap ClientId (nonEmpty "clientId" clientId)
         <*> fmap SecretKey (nonEmpty "secretKey" secretKey)
 
-    validateDhallDbConfig :: DhallDbConfig -> Validation (NonEmpty Text) DbConfig
-    validateDhallDbConfig (DhallDbConfig connStr poolSize schema) = 
-      DbConfig 
+    validateDhallStore :: DhallStoreConfig -> Validation (NonEmpty Text) StoreConfig
+    validateDhallStore (DhallStoreConfig connStr poolSize schema) = 
+      StoreConfig 
         <$> fmap DbConnString (nonEmpty "dbConnString" connStr)
         <*> fmap DbConnPoolSize (positive "dbConnPoolSize" poolSize)
         <*> fmap DbSchema (nonEmpty "dbSchema" schema)

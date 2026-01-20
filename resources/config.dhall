@@ -1,4 +1,4 @@
-let DbConfig =
+let StoreConfig =
   { dbConnString : Text
   , dbConnPoolSize : Natural
   , dbSchema : Text
@@ -10,15 +10,25 @@ let PlaidConfig =
   , secretKey : Text
   }
 
+let RecreatePublicTokenConfig =
+  { matchedErrorCode : Text
+  , matchedErrorWords : List Text
+  }
+
+let PlaidSecurityConfig =
+  { recreatePublicTokens : List RecreatePublicTokenConfig
+  }
+
 let Config =
   { serverPort : Natural
-  , db : DbConfig
+  , store : StoreConfig
   , plaid : PlaidConfig
+  , plaidSecurity : PlaidSecurityConfig
   }
 
 let config : Config =
   { serverPort = 8001
-  , db = 
+  , store = 
       { dbConnString = "host=localhost port=5432 user=haskell dbname=plaid_application_server_db password=haskell"
       , dbConnPoolSize = 10
       , dbSchema = "plaid_application_server"
@@ -27,6 +37,13 @@ let config : Config =
       { endpoint = "https://sandbox.plaid.com"
       , clientId = "CHANGEME"
       , secretKey = "CHANGEME"
+      }
+  , plaidSecurity =
+      { recreatePublicTokens = 
+        [ { matchedErrorCode = "INVALID_PUBLIC_TOKEN"
+          , matchedErrorWords = ["public token", "expired"]
+          }
+        ]
       }
   }
 
