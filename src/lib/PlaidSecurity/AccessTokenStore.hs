@@ -23,7 +23,7 @@ AccessTokenData
   accessToken AccessToken
   createdAt CreatedAt
   updatedAt UpdatedAt
-  Primary userUuid itemId
+  Primary userUuid
   deriving Show
 |]
 
@@ -38,7 +38,8 @@ mkAccessTokenStore ::
 mkAccessTokenStore = AccessTokenStore 
   { saveAccessTokenData = \accessTokenData -> runQueryWithPool $
       upsert accessTokenData
-      [ AccessTokenDataAccessToken =. accessTokenData.accessTokenDataAccessToken
+      [ AccessTokenDataItemId =. accessTokenData.accessTokenDataItemId
+      , AccessTokenDataAccessToken =. accessTokenData.accessTokenDataAccessToken
       , AccessTokenDataUpdatedAt =. accessTokenData.accessTokenDataUpdatedAt
       ] 
       <&> \(Entity key _) -> key

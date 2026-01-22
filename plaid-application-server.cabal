@@ -73,6 +73,7 @@ library lib
                     , Common.Utils
                     , Database.Persist.Instances.UUID
                     , DhallConfig
+                    , PathPiece.Instances.UUID
                     , Plaid.Client
                     , Plaid.Resource
                     , Plaid.Types
@@ -127,6 +128,7 @@ library lib
                     , monad-logger
                     , mtl
                     , network-uri
+                    , path-pieces
                     , persistent
                     , persistent-postgresql
                     , refined
