@@ -1,5 +1,6 @@
 module Plaid.Types
   ( module Plaid.Types.AccessToken
+  , module Plaid.Types.Account
   , module Plaid.Types.ClientId
   , module Plaid.Types.CreatePublicTokenRequest
   , module Plaid.Types.CreatePublicTokenResponse
@@ -19,6 +20,7 @@ module Plaid.Types
 where
 
 import Plaid.Types.AccessToken
+import Plaid.Types.Account
 import Plaid.Types.ClientId
 import Plaid.Types.CreatePublicTokenRequest
 import Plaid.Types.CreatePublicTokenResponse
