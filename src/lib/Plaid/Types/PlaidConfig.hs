@@ -5,8 +5,8 @@ module Plaid.Types.PlaidConfig where
 import Control.Lens
 import Servant.Client
 
-import PlaidSecurity.Types.ClientId
-import PlaidSecurity.Types.SecretKey
+import PlaidLinking.Types.ClientId
+import PlaidLinking.Types.SecretKey
 
 newtype Endpoint = Endpoint
   { unEndpoint :: BaseUrl }

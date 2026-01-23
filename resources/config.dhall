@@ -15,7 +15,7 @@ let CreatePublicTokenConfig =
   , matchedErrorWords : List Text
   }
 
-let PlaidSecurityConfig =
+let PlaidLinkingConfig =
   { createPublicTokens : List CreatePublicTokenConfig
   }
 
@@ -23,7 +23,7 @@ let Config =
   { serverPort : Natural
   , store : StoreConfig
   , plaid : PlaidConfig
-  , plaidSecurity : PlaidSecurityConfig
+  , plaidLinking : PlaidLinkingConfig
   }
 
 let config : Config =
@@ -38,7 +38,7 @@ let config : Config =
       , clientId = "CHANGEME"
       , secretKey = "CHANGEME"
       }
-  , plaidSecurity =
+  , plaidLinking =
       { createPublicTokens = 
         [ { matchedErrorCode = "INVALID_PUBLIC_TOKEN"
           , matchedErrorWords = ["public token", "expired"]

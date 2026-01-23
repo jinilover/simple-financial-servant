@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
-module PlaidSecurity.Types.TokenExchangeResponse where
+module PlaidLinking.Types.TokenExchangeResponse where
 
 import Data.Aeson
 import GHC.Generics

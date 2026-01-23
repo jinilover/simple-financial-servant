@@ -6,7 +6,7 @@ import Data.Pool
 import qualified Data.Text as T
 import Database.Persist.Postgresql
 
-import PlaidSecurity.AccessTokenStore
+import PlaidLinking.AccessTokenStore
 import Store.Types
 
 migrateDb :: 

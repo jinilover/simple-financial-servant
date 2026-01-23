@@ -1,6 +1,6 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TemplateHaskell #-}
-module PlaidSecurity.Types.PlaidSecurityConfig where
+module PlaidLinking.Types.PlaidLinkingConfig where
 
 import Control.Lens
 import Data.Text
@@ -19,8 +19,8 @@ data CreatePublicTokenConfig = CreatePublicTokenConfig
   } 
   deriving Show
 
-data PlaidSecurityConfig = PlaidSecurityConfig
+data PlaidLinkingConfig = PlaidLinkingConfig
   { _configCreatePublicTokens :: [CreatePublicTokenConfig]
   }
   deriving Show
-makeClassy ''PlaidSecurityConfig
+makeClassy ''PlaidLinkingConfig

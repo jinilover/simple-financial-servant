@@ -94,17 +94,17 @@ library lib
                     , Plaid.Types.PublicToken
                     , Plaid.Types.RequestId
                     , Plaid.Types.SecretKey
-                    , PlaidSecurity.AccessTokenStore
-                    , PlaidSecurity.Api
-                    , PlaidSecurity.TokenService
-                    , PlaidSecurity.Types
-                    , PlaidSecurity.Types.AccessToken
-                    , PlaidSecurity.Types.ClientId
-                    , PlaidSecurity.Types.PlaidSecurityConfig
-                    , PlaidSecurity.Types.PublicToken
-                    , PlaidSecurity.Types.SecretKey
-                    , PlaidSecurity.Types.TokenExchangeResponse
-                    , PlaidSecurity.Types.TokenServiceError
+                    , PlaidLinking.AccessTokenStore
+                    , PlaidLinking.Api
+                    , PlaidLinking.TokenService
+                    , PlaidLinking.Types
+                    , PlaidLinking.Types.AccessToken
+                    , PlaidLinking.Types.ClientId
+                    , PlaidLinking.Types.PlaidLinkingConfig
+                    , PlaidLinking.Types.PublicToken
+                    , PlaidLinking.Types.SecretKey
+                    , PlaidLinking.Types.TokenExchangeResponse
+                    , PlaidLinking.Types.TokenServiceError
                     , Server
                     , Store.Migration
                     , Store.Resource

@@ -1,5 +1,5 @@
 {-# LANGUAGE DerivingVia #-}
-module PlaidSecurity.Types.ClientId where
+module PlaidLinking.Types.ClientId where
 
 import Data.Text
 

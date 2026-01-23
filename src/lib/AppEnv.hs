@@ -6,7 +6,7 @@ import Katip
 
 import AppConfig
 import Plaid.Types
-import PlaidSecurity.Types
+import PlaidLinking.Types
 import Store.Types
 
 data AppEnv = AppEnv
@@ -20,8 +20,8 @@ makeClassy ''AppEnv
 instance HasPlaidConfig AppEnv where
   plaidConfig = configApp . configPlaid
 
-instance HasPlaidSecurityConfig AppEnv where
-  plaidSecurityConfig = configApp . configPlaidSecurity
+instance HasPlaidLinkingConfig AppEnv where
+  plaidLinkingConfig = configApp . configPlaidLinking
 
 instance HasPlaidClientEnv AppEnv where
   plaidClientEnv = envPlaid

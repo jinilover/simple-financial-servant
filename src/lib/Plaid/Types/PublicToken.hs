@@ -3,11 +3,11 @@ module Plaid.Types.PublicToken where
 import Data.Aeson
 import Data.Text
 
-import qualified PlaidSecurity.Types.PublicToken as PS
+import qualified PlaidLinking.Types.PublicToken as PLK
 
 newtype PublicToken = PublicToken
   { unPublicToken :: Text }
   deriving (ToJSON, FromJSON)
 
-fromPSPublicToken :: PS.PublicToken -> PublicToken
+fromPSPublicToken :: PLK.PublicToken -> PublicToken
 fromPSPublicToken = PublicToken . (.unPublicToken)

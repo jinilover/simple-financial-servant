@@ -25,7 +25,7 @@ import Common.Types
 import DhallConfig
 import Paths_plaid_application_server ( getDataFileName )
 import Plaid.Types ( PlaidConfig(..), Endpoint (..))
-import PlaidSecurity.Types
+import PlaidLinking.Types
 import Store.Types
 
 newtype ConfigException = ConfigException Text
@@ -41,7 +41,7 @@ data AppConfig = AppConfig
   { _configServerPort :: ServerPort
   , _configStore :: StoreConfig
   , _configPlaid :: PlaidConfig
-  , _configPlaidSecurity :: PlaidSecurityConfig
+  , _configPlaidLinking :: PlaidLinkingConfig
   }
   deriving Show
 makeClassy ''AppConfig
@@ -54,16 +54,16 @@ loadAppConfig =
     validation (throwM . ConfigException . T.intercalate "\n" . toList) pure $ validateDhallConfig dhallConfig
 
 validateDhallConfig :: DhallConfig -> Validation (NonEmpty Text) AppConfig
-validateDhallConfig (DhallConfig port store plaid plaidSecurity) = 
+validateDhallConfig (DhallConfig port store plaid plaidLinking) = 
     AppConfig
       <$> fmap ServerPort (positive "serverPort" port)
       <*> validateDhallStore store
       <*> validateDhallPlaid plaid
-      <*> validateDhallPlaidSecurity plaidSecurity
+      <*> validateDhallPlaidLinking plaidLinking
   where
-    validateDhallPlaidSecurity :: DhallPlaidSecurityConfig -> Validation (NonEmpty Text) PlaidSecurityConfig
-    validateDhallPlaidSecurity DhallPlaidSecurityConfig {..} = 
-      PlaidSecurityConfig <$> traverse validateDhallCreatePublicToken createPublicTokens
+    validateDhallPlaidLinking :: DhallPlaidLinkingConfig -> Validation (NonEmpty Text) PlaidLinkingConfig
+    validateDhallPlaidLinking DhallPlaidLinkingConfig {..} = 
+      PlaidLinkingConfig <$> traverse validateDhallCreatePublicToken createPublicTokens
 
     validateDhallCreatePublicToken :: DhallCreatePublicTokenConfig -> Validation (NonEmpty Text) CreatePublicTokenConfig
     validateDhallCreatePublicToken DhallCreatePublicTokenConfig {..} = 

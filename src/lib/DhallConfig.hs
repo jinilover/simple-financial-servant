@@ -28,7 +28,7 @@ data DhallCreatePublicTokenConfig = DhallCreatePublicTokenConfig
   } 
   deriving (Show, Generic, FromDhall)
 
-data DhallPlaidSecurityConfig = DhallPlaidSecurityConfig
+data DhallPlaidLinkingConfig = DhallPlaidLinkingConfig
   { createPublicTokens :: [DhallCreatePublicTokenConfig]
   } 
   deriving (Show, Generic, FromDhall)
@@ -37,6 +37,6 @@ data DhallConfig = DhallConfig
   { serverPort :: Natural
   , store :: DhallStoreConfig
   , plaid :: DhallPlaidConfig
-  , plaidSecurity :: DhallPlaidSecurityConfig
+  , plaidLinking :: DhallPlaidLinkingConfig
   }
   deriving (Show, Generic, FromDhall)

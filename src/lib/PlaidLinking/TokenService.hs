@@ -1,5 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
-module PlaidSecurity.TokenService 
+module PlaidLinking.TokenService 
   ( TokenService(..) 
   , mkTokenService
   )
@@ -16,17 +16,17 @@ import Common.Utils
 import Common.Types    hiding (StructuredResp, ErrorResponse)
 import Plaid.Client
 import Plaid.Types as PL
-import PlaidSecurity.AccessTokenStore
-import PlaidSecurity.Types as PS
+import PlaidLinking.AccessTokenStore
+import PlaidLinking.Types as PLK
 import Store.Types
 import Katip
 
 newtype TokenService m = TokenService 
-  { exchangeToken :: UserId -> PS.PublicToken -> m (Either TokenServiceError TokenExchangeResponse) 
+  { exchangeToken :: UserId -> PLK.PublicToken -> m (Either TokenServiceError TokenExchangeResponse) 
   }
 
 mkTokenService :: forall r m.
-  (MonadReader r m, HasPlaidSecurityConfig r, KatipContext m) =>
+  (MonadReader r m, HasPlaidLinkingConfig r, KatipContext m) =>
   PlaidClient m ->
   AccessTokenStore m ->
   TokenService m 
@@ -34,7 +34,7 @@ mkTokenService plaidClient tokenStore =
   TokenService
   { exchangeToken = \userId publicToken -> 
       do 
-        createPublicTokenConfigs <- view (plaidSecurityConfig . configCreatePublicTokens)
+        createPublicTokenConfigs <- view (plaidLinkingConfig . configCreatePublicTokens)
         addNameSpace . callForAccessToken 0 createPublicTokenConfigs userId . fromPSPublicToken $ publicToken
   }
   where

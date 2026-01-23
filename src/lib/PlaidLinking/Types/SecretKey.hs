@@ -1,5 +1,5 @@
 {-# LANGUAGE DerivingVia #-}
-module PlaidSecurity.Types.SecretKey where
+module PlaidLinking.Types.SecretKey where
 
 import Data.Text
 

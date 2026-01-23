@@ -1,4 +1,4 @@
-module PlaidSecurity.Types.PublicToken where
+module PlaidLinking.Types.PublicToken where
 
 import Data.Text
 import Servant

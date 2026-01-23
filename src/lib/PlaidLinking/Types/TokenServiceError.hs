@@ -1,4 +1,4 @@
-module PlaidSecurity.Types.TokenServiceError where
+module PlaidLinking.Types.TokenServiceError where
 
 import Data.ByteString.Lazy
 import Data.Text

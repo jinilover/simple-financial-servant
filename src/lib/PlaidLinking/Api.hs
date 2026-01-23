@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
-module PlaidSecurity.Api 
-  ( PlaidSecurityApi
+module PlaidLinking.Api 
+  ( PlaidLinkingApi
   , apiServer 
   )
 where
@@ -14,16 +14,16 @@ import Network.HTTP.Types
 import Servant
 
 import Common.Types
-import PlaidSecurity.Types
-import PlaidSecurity.TokenService
+import PlaidLinking.Types
+import PlaidLinking.TokenService
 
-type PlaidSecurityApi = "v1" :> 
+type PlaidLinkingApi = "v1" :> 
   (   "token" :> "exchange" :> Capture "user_id" UserId :> Capture "public_token" PublicToken :> Get '[JSON] TokenExchangeResponse
   )
 
 apiServer ::
   (MonadError ServerError m, KatipContext m) =>
-  TokenService m -> ServerT PlaidSecurityApi m
+  TokenService m -> ServerT PlaidLinkingApi m
 apiServer tokenService = exchangeToken
   where
     exchangeToken userId publicToken = addNameSpace . addUserIdToContext userId $ 

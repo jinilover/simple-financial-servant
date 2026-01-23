@@ -1,4 +1,4 @@
-module PlaidSecurity.Types.AccessToken where
+module PlaidLinking.Types.AccessToken where
 
 import Data.Text
 import Database.Persist.Sql

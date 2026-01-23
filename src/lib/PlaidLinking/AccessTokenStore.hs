@@ -4,7 +4,7 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE DataKinds #-}
-module PlaidSecurity.AccessTokenStore where
+module PlaidLinking.AccessTokenStore where
 
 import Control.Monad.Reader
 import Data.Functor
@@ -12,7 +12,7 @@ import Database.Persist
 import Database.Persist.TH
 
 import Common.Types
-import PlaidSecurity.Types
+import PlaidLinking.Types
 import Store.Types
 import Store.Utils
 

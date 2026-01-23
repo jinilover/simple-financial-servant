@@ -3,11 +3,11 @@ module Plaid.Types.ClientId where
 import Data.Aeson
 import Data.Text
 
-import qualified PlaidSecurity.Types.ClientId as PS
+import qualified PlaidLinking.Types.ClientId as PLK
 
 newtype ClientId = ClientId
   { unClientId :: Text }
   deriving ToJSON
 
-fromPSClientId :: PS.ClientId -> ClientId
+fromPSClientId :: PLK.ClientId -> ClientId
 fromPSClientId = ClientId . (.unClientId)
