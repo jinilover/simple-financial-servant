@@ -1,54 +1,32 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
-module PlaidLinking.Api 
-  ( PlaidLinkingApi
-  , apiServer 
-  )
-where
+module PlaidLinking.Api where
 
-import Control.Monad.Error.Class
-import Data.Aeson
-import Data.String.Conv
+import Control.Monad.Except
 import Katip
-import Network.HTTP.Types
 import Servant
 
+import Common.Katip
 import Common.Types
-import PlaidLinking.Types
+import PlaidLinking.Types.PublicToken ( PublicToken )
+import PlaidLinking.Types.TokenExchangeResponse
+    ( TokenExchangeResponse )
 import PlaidLinking.TokenService
 
-type PlaidLinkingApi = "v1" :> 
+type PlaidLinkingApi = 
   (   "token" :> "exchange" :> Capture "user_id" UserId :> Capture "public_token" PublicToken :> Get '[JSON] TokenExchangeResponse
   )
 
-apiServer ::
+exchangeToken :: 
   (MonadError ServerError m, KatipContext m) =>
-  TokenService m -> ServerT PlaidLinkingApi m
-apiServer tokenService = exchangeToken
-  where
-    exchangeToken userId publicToken = addNameSpace . addUserIdToContext userId $ 
-      logFM InfoS ("Exchanging access token for userId: " <> logStr (show userId)) *>
-      tokenService.exchangeToken userId publicToken >>= \case
-        Right resp -> pure resp
-        Left (TokenServiceError apiError) -> 
-          let errMsg = "Fail to exhange access token for userId: " <> logStr (show userId) <> ", cause: " <> logStr (show apiError)
-          in  logFM ErrorS errMsg *> handlePlaidApiError apiError
+  TokenService m -> UserId -> PublicToken -> m TokenExchangeResponse
+exchangeToken tokenService userId publicToken = addNameSpace . addUserIdToContext userId $
+  logFM InfoS ("Exchanging access token for userId: " <> logStr (show userId)) *>
+  tokenService.exchangeToken userId publicToken >>= \case
+    Right resp -> pure resp
+    Left (TokenServiceError apiError) -> 
+      let errMsg = "Fail to exhange access token for userId: " <> logStr (show userId) <> ", cause: " <> logStr (show apiError)
+      in  logFM ErrorS errMsg *> throwError (toServerError apiError)
 
-    addNameSpace = katipAddNamespace "rest-api"
-
-    addUserIdToContext userId = katipAddContext (sl "user_id" userId)
-
-handlePlaidApiError :: 
-  MonadError ServerError m =>
-  PlaidApiError -> m a
-handlePlaidApiError (DecodeFailure errorMsg jsonString) = 
-  throwError err500 { errReasonPhrase = toS errorMsg, errBody = jsonString }
-handlePlaidApiError (CommsError errorMsg) = 
-  throwError err500 { errReasonPhrase = toS errorMsg }
-handlePlaidApiError (PlaidErrorResponse status errorResponse) = 
-  throwError err422 
-    { errReasonPhrase = "Plaid returns status code: " <> show status.statusCode
-    , errBody = case errorResponse of 
-        Payload bs -> bs
-        StructuredResp errResp -> encode . toJSON $ errResp
-    }
+addNameSpace :: KatipContext m => m a -> m a
+addNameSpace = katipAddNamespace "plaid-linking-api"

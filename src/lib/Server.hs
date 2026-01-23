@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 module Server 
   ( startServer
   )
@@ -11,6 +12,7 @@ import Refined
 import Servant
 import Network.Wai.Handler.Warp
 
+import Account.Api
 import AppEnv
 import AppConfig
 import Common.Types
@@ -20,16 +22,18 @@ import PlaidLinking.TokenService
 import Plaid.Client
 import Katip
 
+type FullApi = "v1" :> (PlaidLinkingApi :<|> AccountApi)
+
 type AppServerM = ReaderT AppEnv (KatipContextT (ExceptT ServerError IO))
 
 startServer :: AppEnv -> IO ()
 startServer appEnv' =
-  let app = serve (Proxy @PlaidLinkingApi) (server appEnv')
+  let app = serve (Proxy @FullApi) (server appEnv')
       port = unrefine appEnv'._configApp._configServerPort.unServerPort.unPosInt
   in  run port app
 
-server :: AppEnv -> Server PlaidLinkingApi
-server appEnv' = hoistServer (Proxy @PlaidLinkingApi) toHandler serverTApiM
+server :: AppEnv -> Server FullApi
+server appEnv' = hoistServer (Proxy @FullApi) toHandler fullApiServer
   where
     toHandler :: AppServerM a -> Handler a
     toHandler appServerM = Handler . runKatipContextT appEnv'._logEnv () "rest-server" $ 
@@ -37,7 +41,10 @@ server appEnv' = hoistServer (Proxy @PlaidLinkingApi) toHandler serverTApiM
         reqId <- liftIO generateReqId
         katipAddContext (sl "req_id" reqId) (runReaderT appServerM appEnv')
 
-    serverTApiM :: ServerT PlaidLinkingApi AppServerM
-    serverTApiM = apiServer $ mkTokenService mkPlaidClient mkAccessTokenStore
+    fullApiServer :: ServerT FullApi AppServerM
+    fullApiServer = 
+      let tokenService = mkTokenService mkPlaidClient mkAccessTokenStore
+      in    exchangeToken tokenService 
+      :<|>  accountSummary
 
     generateReqId = nextRandom

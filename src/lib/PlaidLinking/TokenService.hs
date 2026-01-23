@@ -74,7 +74,7 @@ mkTokenService plaidClient tokenStore =
               logFM ErrorS "It has re-created the public token but still fails to exchange an access token" $> 
               clientToServiceError accessTokenErr
 
-    clientToServiceError = Left . TokenServiceError . mapPlaidError
+    clientToServiceError = Left . TokenServiceError . fromPlaidError
 
     createPublicTokenRequired (ApiErrorResponse _ (StructuredResp errResp)) configs =
       flip any configs $ \CreatePublicTokenConfig {..} ->

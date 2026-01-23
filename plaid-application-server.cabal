@@ -61,9 +61,11 @@ common lang
 library lib
     import:           warnings
                     , lang
-    exposed-modules:  AppConfig
+    exposed-modules:  Account.Api
+                    , AppConfig
                     , AppEnv
                     , Bootstrap
+                    , Common.Katip
                     , Common.Types
                     , Common.Types.ErrorResponseBody
                     , Common.Types.ItemId
