@@ -1,6 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 module PlaidLinking.TokenService 
   ( TokenService(..) 
+  , TokenServiceError(..)
   , mkTokenService
   )
 where
@@ -73,7 +74,7 @@ mkTokenService plaidClient tokenStore =
               logFM ErrorS "It has re-created the public token but still fails to exchange an access token" $> 
               clientToServiceError accessTokenErr
 
-    clientToServiceError = Left . TokenServiceError . mapClientError
+    clientToServiceError = Left . TokenServiceError . mapPlaidError
 
     createPublicTokenRequired (ApiErrorResponse _ (StructuredResp errResp)) configs =
       flip any configs $ \CreatePublicTokenConfig {..} ->
@@ -87,9 +88,5 @@ mkTokenService plaidClient tokenStore =
 
     addNameSpace = katipAddNamespace "token-service"
 
-mapClientError :: PlaidError -> PlaidApiError
-mapClientError DeserializationError {..} = DecodeFailure errorMsg jsonString
-mapClientError HttpError {..} = CommsError errorMsg
-mapClientError NetworkError {..} = CommsError errorMsg
-mapClientError ApiErrorResponse {..} = 
-  PlaidErrorResponse status $ fromPLErrorResponseBody errorBody
+newtype TokenServiceError = 
+  TokenServiceError PlaidApiError

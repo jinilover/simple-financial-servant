@@ -67,6 +67,7 @@ library lib
                     , Common.Types
                     , Common.Types.ErrorResponseBody
                     , Common.Types.ItemId
+                    , Common.Types.PlaidApiError
                     , Common.Types.PosInt
                     , Common.Types.RequestId
                     , Common.Types.UserId
@@ -104,7 +105,6 @@ library lib
                     , PlaidLinking.Types.PublicToken
                     , PlaidLinking.Types.SecretKey
                     , PlaidLinking.Types.TokenExchangeResponse
-                    , PlaidLinking.Types.TokenServiceError
                     , Server
                     , Store.Migration
                     , Store.Resource
