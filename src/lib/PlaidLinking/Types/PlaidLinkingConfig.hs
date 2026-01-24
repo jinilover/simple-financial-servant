@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TemplateHaskell #-}
 module PlaidLinking.Types.PlaidLinkingConfig where
 
@@ -7,11 +6,11 @@ import Data.Text
 
 newtype MatchedErrorCode = MatchedErrorCode
   { unMatchedErrorCode :: Text }
-  deriving Show via Text
+  deriving Show
 
 newtype MatchedErrorWord = MatchedErrorWord
   { unMatchedErrorWord :: Text }
-  deriving Show via Text
+  deriving Show
 
 data CreatePublicTokenConfig = CreatePublicTokenConfig
   { _configMatchedErrorCode :: MatchedErrorCode

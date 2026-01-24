@@ -81,7 +81,8 @@ library lib
                     , Plaid.Resource
                     , Plaid.Types
                     , Plaid.Types.AccessToken
-                    , Plaid.Types.Account
+                    , Plaid.Types.AccountRequest
+                    , Plaid.Types.AccountResponse
                     , Plaid.Types.ClientId
                     , Plaid.Types.CreatePublicTokenRequest
                     , Plaid.Types.CreatePublicTokenResponse

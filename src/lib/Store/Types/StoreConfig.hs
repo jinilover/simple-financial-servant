@@ -1,5 +1,4 @@
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE DerivingVia #-}
 module Store.Types.StoreConfig where
 
 import Control.Lens
@@ -10,17 +9,17 @@ import Common.Types
 
 newtype DbConnPoolSize = DbConnPoolSize
   { unDbConnPoolSize :: PosInt }
-  deriving Show via PosInt
+  deriving Show
 makeClassy ''DbConnPoolSize
 
 newtype DbConnString = DbConnString
   { unDbConnString :: ByteString }
-  deriving Show via ByteString
+  deriving Show
 makeClassy ''DbConnString
 
 newtype DbSchema = DbSchema
   { unDbSchema :: Text }
-  deriving Show via Text
+  deriving Show
 makeClassy ''DbSchema
 
 data StoreConfig = StoreConfig 

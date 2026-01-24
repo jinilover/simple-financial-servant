@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingVia #-}
 module Common.Types.RequestId where
 
 import Data.Aeson
@@ -8,7 +7,7 @@ import qualified Plaid.Types as PL
 
 newtype RequestId = RequestId
   { unRequestId :: Text }
-  deriving (ToJSON, Show) via Text
+  deriving (ToJSON, Show)
 
 fromPLRequestId :: PL.RequestId -> RequestId
 fromPLRequestId = RequestId . (.unRequestId)  

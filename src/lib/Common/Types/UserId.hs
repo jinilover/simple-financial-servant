@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingVia #-}
 module Common.Types.UserId where
 
 -- NOTE: Persistent Quirk - Web Framework Instances Required for Persistence
@@ -28,5 +27,4 @@ import PathPiece.Instances.UUID ()
 
 newtype UserId = UserId
   { unUserId :: UUID }
-  deriving (Eq, Ord, Read, Show) via UUID
-  deriving (FromHttpApiData, ToHttpApiData, FromJSON, ToJSON, PathPiece, PersistField, PersistFieldSql)
+  deriving (Eq, Ord, Read, Show, FromHttpApiData, ToHttpApiData, FromJSON, ToJSON, PathPiece, PersistField, PersistFieldSql)

@@ -34,7 +34,7 @@ newtype ConfigException = ConfigException Text
 
 newtype ServerPort = ServerPort
   { unServerPort :: PosInt }
-  deriving Show via PosInt
+  deriving Show
 makeClassy ''ServerPort
 
 data AppConfig = AppConfig 

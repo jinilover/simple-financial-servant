@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Plaid.Types.PlaidConfig where
 
@@ -10,7 +9,7 @@ import PlaidLinking.Types.SecretKey
 
 newtype Endpoint = Endpoint
   { unEndpoint :: BaseUrl }
-  deriving Show via BaseUrl
+  deriving Show
 
 data PlaidConfig = PlaidConfig 
   { _configEndpoint :: Endpoint

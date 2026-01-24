@@ -5,4 +5,4 @@ import Data.Text
 
 newtype AccessToken = AccessToken
   { unAccessToken :: Text }
-  deriving FromJSON
+  deriving (FromJSON, ToJSON)

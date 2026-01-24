@@ -39,28 +39,32 @@ fromPLErrorResponse PL.ErrorResponse {..} =
 
 newtype DisplayMessage = DisplayMessage
   { unDisplayMessage :: Text }
-  deriving (ToJSON, Show) via Text
+  deriving Show
+  deriving ToJSON via Text
 
 fromPLDisplayMessage :: PL.DisplayMessage -> DisplayMessage
 fromPLDisplayMessage = DisplayMessage . (.unDisplayMessage)  
 
 newtype ErrorCode = ErrorCode
   { unErrorCode :: Text }
-  deriving (ToJSON, Show) via Text
+  deriving Show
+  deriving ToJSON via Text
 
 fromPLErrorCode :: PL.ErrorCode -> ErrorCode
 fromPLErrorCode = ErrorCode . (.unErrorCode)  
 
 newtype ErrorMessage = ErrorMessage
   { unErrorMessage :: Text }
-  deriving (ToJSON, Show) via Text
+  deriving Show
+  deriving ToJSON via Text
 
 fromPLErrorMessage :: PL.ErrorMessage -> ErrorMessage
 fromPLErrorMessage = ErrorMessage . (.unErrorMessage)  
 
 newtype ErrorType = ErrorType
   { unErrorType :: Text }
-  deriving (ToJSON, Show) via Text
+  deriving Show
+  deriving ToJSON via Text
 
 fromPLErrorType :: PL.ErrorType -> ErrorType
 fromPLErrorType = ErrorType . (.unErrorType)  

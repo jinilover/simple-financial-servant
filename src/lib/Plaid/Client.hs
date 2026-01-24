@@ -20,20 +20,29 @@ import Servant
 import Plaid.Types
 import Katip
 
-type PlaidApi = 
-        "item" :> "public_token" :> "exchange" :> ReqBody '[JSON] ExchangeAccessTokenRequest :> Post '[JSON] ExchangeAccessTokenResponse
+type PlaidApi = LinkingApi :<|> AccountApi
+
+type LinkingApi = 
+  (     "item" :> "public_token" :> "exchange" :> ReqBody '[JSON] ExchangeAccessTokenRequest :> Post '[JSON] ExchangeAccessTokenResponse
   :<|>  "sandbox" :> "public_token" :> "create" :> ReqBody '[JSON] CreatePublicTokenRequest :> Post '[JSON] CreatePublicTokenResponse
+  )
 
 exchangeAccessTokenCM :: ExchangeAccessTokenRequest -> ClientM ExchangeAccessTokenResponse
 createPublicTokenCM :: CreatePublicTokenRequest -> ClientM CreatePublicTokenResponse
 
-exchangeAccessTokenCM :<|> createPublicTokenCM = client (Proxy @PlaidApi)
+type AccountApi =
+        "accounts" :> "get" :> ReqBody '[JSON] AccountRequest :> Post '[JSON] AccountResponse
+
+accountSummaryCM :: AccountRequest -> ClientM AccountResponse
+
+(exchangeAccessTokenCM :<|> createPublicTokenCM) :<|> accountSummaryCM = client (Proxy @PlaidApi)
 
 type PlaidResult = Either PlaidError
 
 data PlaidClient m  = PlaidClient
   { exchangeAccessToken :: PublicToken -> m (PlaidResult ExchangeAccessTokenResponse)
   , createPublicToken :: m (PlaidResult CreatePublicTokenResponse)
+  , accountSummary :: AccessToken -> m (PlaidResult AccountResponse)
   }
 
 mkPlaidClient :: forall m r.
@@ -42,11 +51,14 @@ mkPlaidClient :: forall m r.
 mkPlaidClient = PlaidClient 
   { exchangeAccessToken = \publicToken -> mkCred >>= \cred ->
       let req = uncurry ExchangeAccessTokenRequest cred publicToken
-      in  callClient "Exchanging access token" (exchangeAccessTokenCM req) <&> first handleClientError
+      in  callClient "Exchanging access token" (exchangeAccessTokenCM req)
   , createPublicToken = mkCred >>= \(client_id, secret) ->
       let institution_id = Institution3
           initial_products = [Auth]
-      in  callClient "Creating public token" (createPublicTokenCM CreatePublicTokenRequest {..}) <&> first handleClientError
+      in  callClient "Creating public token" (createPublicTokenCM CreatePublicTokenRequest {..})
+  , accountSummary = \accessToken -> mkCred >>= \cred ->
+      let req = uncurry AccountRequest cred accessToken 
+      in  callClient "Requesting account information" (accountSummaryCM req)
   }
   where
     mkCred :: m (ClientId, SecretKey)
@@ -54,14 +66,16 @@ mkPlaidClient = PlaidClient
         <$> fmap fromPSClientId (view configClientId)
         <*> fmap fromPSSecretKey (view configSecretKey)
 
-    callClient :: Text -> ClientM a -> m (Either ClientError a)
+    callClient :: Text -> ClientM a -> m (Either PlaidError a)
     callClient action clientM = katipAddNamespace "client-plaid" $
       do
         logFM InfoS $ logStr action 
         clientEnv <- (.unPlaidClientEnv) <$> view plaidClientEnv
-        flip tap (liftIO $ runClientM clientM clientEnv) $ \case
-          Right _ -> logFM InfoS "Successfully received response from plaid"
-          Left err -> logFM ErrorS $ "Fail to receive response from plaid, cause: " <> logStr (show err)
+        tap (\case
+            Right _ -> logFM InfoS "Successfully received response from plaid"
+            Left err -> logFM ErrorS $ "Fail to receive response from plaid, cause: " <> logStr (show err)
+          ) (liftIO $ runClientM clientM clientEnv) <&> first handleClientError
+        
         
 handleClientError :: ClientError -> PlaidError
 handleClientError (FailureResponse _ Response {..}) = 

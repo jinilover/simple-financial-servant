@@ -13,6 +13,7 @@ import Plaid.Types.RequestId
 data ErrorResponseBody = 
     Payload ByteString
   | StructuredResp ErrorResponse
+  deriving Show
 
 data ErrorResponse = ErrorResponse {
       display_message :: Maybe DisplayMessage
@@ -21,7 +22,7 @@ data ErrorResponse = ErrorResponse {
     , error_type :: ErrorType
     , request_id :: RequestId
     }
-  deriving (Generic, FromJSON)
+  deriving (Show, Generic, FromJSON)
 
 instance FromJSON ErrorResponseBody where
   parseJSON v = 
@@ -30,16 +31,20 @@ instance FromJSON ErrorResponseBody where
 
 newtype DisplayMessage = DisplayMessage
   { unDisplayMessage :: Text }
-  deriving (FromJSON, Show) via Text
+  deriving Show
+  deriving FromJSON via Text
 
 newtype ErrorCode = ErrorCode
   { unErrorCode :: Text }
-  deriving (FromJSON, Show) via Text
+  deriving Show
+  deriving FromJSON via Text
 
 newtype ErrorMessage = ErrorMessage
   { unErrorMessage :: Text }
-  deriving (FromJSON, Show) via Text
+  deriving Show
+  deriving FromJSON via Text
 
 newtype ErrorType = ErrorType
   { unErrorType :: Text }
-  deriving (FromJSON, Show) via Text
+  deriving Show
+  deriving FromJSON via Text

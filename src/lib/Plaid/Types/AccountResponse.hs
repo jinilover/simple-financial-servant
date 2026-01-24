@@ -1,11 +1,15 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE LambdaCase #-}
-module Plaid.Types.Account where
+module Plaid.Types.AccountResponse where
 
 import Data.Aeson
 import Data.Text
 import GHC.Generics
+
+data AccountResponse = AccountResponse
+  { accounts :: [Account] }
+  deriving (Generic, FromJSON)
 
 data Account = Account 
   { account_id :: AccountId
