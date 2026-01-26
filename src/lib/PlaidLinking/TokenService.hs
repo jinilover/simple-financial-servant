@@ -1,7 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 module PlaidLinking.TokenService 
   ( TokenService(..) 
-  , TokenServiceError(..)
   , mkTokenService
   )
 where
@@ -22,8 +21,9 @@ import PlaidLinking.Types as PLK
 import Store.Types
 import Katip
 
-newtype TokenService m = TokenService 
-  { exchangeToken :: UserId -> PLK.PublicToken -> m (Either TokenServiceError TokenExchangeResponse) 
+data TokenService m = TokenService 
+  { exchangeToken :: UserId -> PLK.PublicToken -> m (Either PlaidApiError TokenExchangeResponse) 
+  , fetchAccessTokenData :: UserId -> m (Either AccessTokenNotFound PLK.AccessToken)
   }
 
 mkTokenService :: forall r m.
@@ -37,6 +37,8 @@ mkTokenService plaidClient tokenStore =
       do 
         createPublicTokenConfigs <- view (plaidLinkingConfig . configCreatePublicTokens)
         addNameSpace . callForAccessToken 0 createPublicTokenConfigs userId . fromPSPublicToken $ publicToken
+  , fetchAccessTokenData = \userId -> tokenStore.fetchAccessTokenData (AccessTokenDataKey userId) <&>
+      maybe (Left $ AccessTokenNotFound userId) (Right . (.accessTokenDataAccessToken))
   }
   where
     saveAccessToken ExchangeAccessTokenResponse {..} userId = 
@@ -52,7 +54,7 @@ mkTokenService plaidClient tokenStore =
         _ <- tokenStore.saveAccessTokenData accessTokenData
         pureRight TokenExchangeResponse { itemId = accessTokenDataItemId}
 
-    callForAccessToken :: Int -> [CreatePublicTokenConfig] -> UserId -> PL.PublicToken -> m (Either TokenServiceError TokenExchangeResponse)
+    callForAccessToken :: Int -> [CreatePublicTokenConfig] -> UserId -> PL.PublicToken -> m (Either PlaidApiError TokenExchangeResponse)
     callForAccessToken count createPublicTokenConfigs userId publicToken = 
       plaidClient.exchangeAccessToken publicToken >>= \case
         Right accessTokenResp -> 
@@ -74,7 +76,7 @@ mkTokenService plaidClient tokenStore =
               logFM ErrorS "It has re-created the public token but still fails to exchange an access token" $> 
               clientToServiceError accessTokenErr
 
-    clientToServiceError = Left . TokenServiceError . fromPlaidError
+    clientToServiceError = Left . fromPlaidError
 
     createPublicTokenRequired (ApiErrorResponse _ (StructuredResp errResp)) configs =
       flip any configs $ \CreatePublicTokenConfig {..} ->
@@ -87,6 +89,3 @@ mkTokenService plaidClient tokenStore =
     createPublicTokenRequired _ _ = False
 
     addNameSpace = katipAddNamespace "token-service"
-
-newtype TokenServiceError = 
-  TokenServiceError PlaidApiError

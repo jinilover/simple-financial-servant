@@ -24,7 +24,7 @@ exchangeToken tokenService userId publicToken = addNameSpace . addUserIdToContex
   logFM InfoS ("Exchanging access token for userId: " <> logStr (show userId)) *>
   tokenService.exchangeToken userId publicToken >>= \case
     Right resp -> pure resp
-    Left (TokenServiceError apiError) -> 
+    Left apiError -> 
       let errMsg = "Fail to exhange access token for userId: " <> logStr (show userId) <> ", cause: " <> logStr (show apiError)
       in  logFM ErrorS errMsg *> throwError (toServerError apiError)
 

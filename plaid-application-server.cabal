@@ -103,6 +103,7 @@ library lib
                     , PlaidLinking.TokenService
                     , PlaidLinking.Types
                     , PlaidLinking.Types.AccessToken
+                    , PlaidLinking.Types.AccessTokenNotFound
                     , PlaidLinking.Types.ClientId
                     , PlaidLinking.Types.PlaidLinkingConfig
                     , PlaidLinking.Types.PublicToken
