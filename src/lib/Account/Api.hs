@@ -1,23 +1,34 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 module Account.Api where
 
-import Data.Functor
+import Control.Monad.Error.Class
 import Katip
 import Servant
 
+import Account.AccountService
+import Account.Types
 import Common.Katip
 import Common.Types
+import Plaid.Types
 
 type AccountApi = 
-  ( "accounts" :> "summary" :> Capture "user_id" UserId :> Get '[JSON] UserId
+  ( "accounts" :> "summary" :> Capture "user_id" UserId :> Get '[JSON] AccountResponse
   )
 
 accountSummary :: 
-  KatipContext m =>
-  UserId -> m UserId
-accountSummary userId = addNameSpace . addUserIdToContext userId $ 
-  logFM InfoS ("Getting accounts summary for userId: " <> logStr (show userId)) $>
-  userId
+  (MonadError ServerError m, KatipContext m) =>
+  AccountService m -> UserId -> m AccountResponse
+accountSummary accountService userId = addNameSpace . addUserIdToContext userId $ 
+  logFM InfoS ("Getting accounts summary for " <> logStr (show userId)) *>
+  accountService.accountSummary userId >>= 
+    either (\case 
+      PlaidClientError apiError -> 
+        throwError $ toServerError apiError
+      PlaidLinkingError accessTokenNotFound -> 
+        throwError $ err400 { errReasonPhrase = show accessTokenNotFound }
+    )
+    pure
 
 addNameSpace :: KatipContext m => m a -> m a
 addNameSpace = katipAddNamespace "account-api"

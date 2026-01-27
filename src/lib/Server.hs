@@ -8,10 +8,12 @@ import Control.Monad.Except
 import Control.Monad.Reader
 import Data.Proxy
 import Data.UUID.V4
+import Katip
 import Refined
 import Servant
 import Network.Wai.Handler.Warp
 
+import Account.AccountService
 import Account.Api
 import AppEnv
 import AppConfig
@@ -20,7 +22,6 @@ import PlaidLinking.AccessTokenStore
 import PlaidLinking.Api
 import PlaidLinking.TokenService
 import Plaid.Client
-import Katip
 
 type FullApi = "v1" :> (PlaidLinkingApi :<|> AccountApi)
 
@@ -43,8 +44,11 @@ server appEnv' = hoistServer (Proxy @FullApi) toHandler fullApiServer
 
     fullApiServer :: ServerT FullApi AppServerM
     fullApiServer = 
-      let tokenService = mkTokenService mkPlaidClient mkAccessTokenStore
-      in    exchangeToken tokenService 
-      :<|>  accountSummary
+      let plaidClient = mkPlaidClient
+          tokenService = mkTokenService plaidClient mkAccessTokenStore
+          accountService = mkAccountService plaidClient tokenService
+      in    
+            exchangeToken tokenService
+      :<|>  accountSummary accountService
 
     generateReqId = nextRandom

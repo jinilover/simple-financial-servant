@@ -61,7 +61,10 @@ common lang
 library lib
     import:           warnings
                     , lang
-    exposed-modules:  Account.Api
+    exposed-modules:  Account.AccountService
+                    , Account.Api
+                    , Account.Types
+                    , Account.Types.AccountSummaryError
                     , AppConfig
                     , AppEnv
                     , Bootstrap

@@ -31,8 +31,7 @@ mkTokenService :: forall r m.
   PlaidClient m ->
   AccessTokenStore m ->
   TokenService m 
-mkTokenService plaidClient tokenStore = 
-  TokenService
+mkTokenService plaidClient tokenStore = TokenService
   { exchangeToken = \userId publicToken -> 
       do 
         createPublicTokenConfigs <- view (plaidLinkingConfig . configCreatePublicTokens)

@@ -37,12 +37,10 @@ accountSummaryCM :: AccountRequest -> ClientM AccountResponse
 
 (exchangeAccessTokenCM :<|> createPublicTokenCM) :<|> accountSummaryCM = client (Proxy @PlaidApi)
 
-type PlaidResult = Either PlaidError
-
 data PlaidClient m  = PlaidClient
-  { exchangeAccessToken :: PublicToken -> m (PlaidResult ExchangeAccessTokenResponse)
-  , createPublicToken :: m (PlaidResult CreatePublicTokenResponse)
-  , accountSummary :: AccessToken -> m (PlaidResult AccountResponse)
+  { exchangeAccessToken :: PublicToken -> m (Either PlaidError ExchangeAccessTokenResponse)
+  , createPublicToken :: m (Either PlaidError CreatePublicTokenResponse)
+  , accountSummary :: AccessToken -> m (Either PlaidError AccountResponse)
   }
 
 mkPlaidClient :: forall m r.
@@ -74,19 +72,19 @@ mkPlaidClient = PlaidClient
         tap (\case
             Right _ -> logFM InfoS "Successfully received response from plaid"
             Left err -> logFM ErrorS $ "Fail to receive response from plaid, cause: " <> logStr (show err)
-          ) (liftIO $ runClientM clientM clientEnv) <&> first handleClientError
+          ) (liftIO $ runClientM clientM clientEnv) <&> first toPlaidError
         
         
-handleClientError :: ClientError -> PlaidError
-handleClientError (FailureResponse _ Response {..}) = 
+toPlaidError :: ClientError -> PlaidError
+toPlaidError (FailureResponse _ Response {..}) = 
   let status = responseStatusCode
       errorBody = either (const $ Payload responseBody) StructuredResp $ eitherDecode responseBody
   in ApiErrorResponse {..}
-handleClientError (UnsupportedContentType mediaType _) = 
+toPlaidError (UnsupportedContentType mediaType _) = 
   HttpError { errorMsg = "Unsupported mediaType: " <> toS (show mediaType) }
-handleClientError (InvalidContentTypeHeader _) = 
+toPlaidError (InvalidContentTypeHeader _) = 
   HttpError { errorMsg = "InvalidContentTypeHeader" }
-handleClientError (ConnectionError someException) = 
+toPlaidError (ConnectionError someException) = 
   NetworkError { errorMsg = toS $ show someException}
-handleClientError (DecodeFailure msg Response {responseBody = jsonString} ) = 
+toPlaidError (DecodeFailure msg Response {responseBody = jsonString} ) = 
   DeserializationError { errorMsg = msg, jsonString }

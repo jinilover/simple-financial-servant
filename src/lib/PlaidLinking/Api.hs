@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE LambdaCase #-}
 module PlaidLinking.Api where
 
 import Control.Monad.Except
@@ -22,11 +21,11 @@ exchangeToken ::
   TokenService m -> UserId -> PublicToken -> m TokenExchangeResponse
 exchangeToken tokenService userId publicToken = addNameSpace . addUserIdToContext userId $
   logFM InfoS ("Exchanging access token for userId: " <> logStr (show userId)) *>
-  tokenService.exchangeToken userId publicToken >>= \case
-    Right resp -> pure resp
-    Left apiError -> 
+  tokenService.exchangeToken userId publicToken >>= 
+    either (\apiError ->
       let errMsg = "Fail to exhange access token for userId: " <> logStr (show userId) <> ", cause: " <> logStr (show apiError)
       in  logFM ErrorS errMsg *> throwError (toServerError apiError)
+    ) pure
 
 addNameSpace :: KatipContext m => m a -> m a
 addNameSpace = katipAddNamespace "plaid-linking-api"
