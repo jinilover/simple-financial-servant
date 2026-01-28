@@ -20,7 +20,7 @@ accountSummary ::
   (MonadError ServerError m, KatipContext m) =>
   AccountService m -> UserId -> m AccountResponse
 accountSummary accountService userId = addNameSpace . addUserIdToContext userId $ 
-  logFM InfoS ("Getting accounts summary for " <> logStr (show userId)) *>
+  logFM InfoS ("Requesting account summary for " <> logStr (show userId)) *>
   accountService.accountSummary userId >>= 
     either (\case 
       PlaidClientError apiError -> 

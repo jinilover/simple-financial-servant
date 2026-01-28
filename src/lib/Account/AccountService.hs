@@ -1,11 +1,12 @@
+{-# LANGUAGE LambdaCase #-}
 module Account.AccountService where
 
-import Control.Monad.Except
-import Data.Bifunctor
+import Data.Functor
 import Katip
 
 import Account.Types.AccountSummaryError
 import Common.Types
+import Common.Utils
 import qualified Plaid.Types as PL
 import Plaid.Client
 import PlaidLinking.Types 
@@ -23,16 +24,14 @@ mkAccountService ::
 mkAccountService plaidClient tokenService = AccountService
   { accountSummary = \userId -> 
       addNameSpace $
-      logFM InfoS "Accessing account summary" *> 
-      runExceptT
-        (do
-          accessToken <- ExceptT . fmap (first PlaidLinkingError) $ tokenService.fetchAccessTokenData userId
-          ExceptT . 
-            fmap (first (PlaidClientError . fromPlaidError)) . 
-            plaidClient.accountSummary . 
-            PL.AccessToken . (.unAccessToken) 
-            $ accessToken
-        )
+      logFM InfoS ("Requesting account summary for " <> logStr (show userId)) *> 
+      tokenService.fetchAccessTokenData userId >>= \case
+        Left tokenNotFound -> 
+          logFM ErrorS (logStr $ show tokenNotFound) $> Left (PlaidLinkingError tokenNotFound)
+        Right accessToken -> 
+          (plaidClient.accountSummary . PL.AccessToken . (.unAccessToken) $ accessToken) >>= \case 
+            Left plaidError -> logFM ErrorS (logStr $ show plaidError) $> Left (PlaidClientError . fromPlaidError $ plaidError)
+            Right resp -> pureRight resp
   }
   where
     addNameSpace = katipAddNamespace "account-service"
