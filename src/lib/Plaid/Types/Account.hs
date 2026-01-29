@@ -53,8 +53,7 @@ data Balances = Balances
   , limit :: Maybe Limit
   , unofficial_currency_code :: Maybe UnofficialCurrencyCode
   }
-  deriving Generic 
-  deriving anyclass FromJSON
+  deriving (Generic, FromJSON)
 
 newtype AvailableBalance = AvailableBalance
   { unAvailableBalance :: Double }
