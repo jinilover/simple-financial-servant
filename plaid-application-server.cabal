@@ -64,6 +64,7 @@ library lib
     exposed-modules:  Account.AccountService
                     , Account.Api
                     , Account.Types
+                    , Account.Types.Account
                     , Account.Types.AccountSummaryError
                     , AppConfig
                     , AppEnv
