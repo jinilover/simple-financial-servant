@@ -55,6 +55,7 @@ mkTokenService plaidClient tokenStore = TokenService
 
     callForAccessToken :: Int -> [CreatePublicTokenConfig] -> UserId -> PL.PublicToken -> m (Either PlaidApiError TokenExchangeResponse)
     callForAccessToken count createPublicTokenConfigs userId publicToken = 
+      logFM InfoS ("Exchanging access token for " <> logStr (show userId)) *>
       plaidClient.exchangeAccessToken publicToken >>= \case
         Right accessTokenResp -> 
           saveAccessToken accessTokenResp userId
