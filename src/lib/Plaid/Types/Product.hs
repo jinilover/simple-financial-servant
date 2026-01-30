@@ -1,10 +1,11 @@
 module Plaid.Types.Product where
 
 import Data.Aeson
-import Data.Text
+
+import Aeson.Utils
 
 data Product = Auth | Transactions
 
 instance ToJSON Product where
-  toJSON Auth = toJSON ("auth" :: Text)
-  toJSON Transactions = toJSON ("transactions" :: Text)
+  toJSON Auth = textToJSON "auth"
+  toJSON Transactions = textToJSON "transactions"
