@@ -6,13 +6,14 @@ import Data.Aeson
 import Data.Text
 import GHC.Generics
 
+import Aeson.Utils
+
 data Account = Account 
   { accountId :: AccountId
   , balances :: Balances
   , mask :: Mask
   , name :: AccountName
   , officialName :: Maybe OfficialName
-  , subtype :: AccountSubtype
   , accountType :: AccountType
   }
   deriving (Generic, ToJSON)
@@ -33,18 +34,21 @@ newtype OfficialName = OfficialName
   { unOfficialName :: Text }
   deriving newtype ToJSON
 
-newtype AccountSubtype = AccountSubtype
-  { unAccountSubtype :: Text }
-  deriving newtype ToJSON
-
 data AccountType = 
     Depository DepositoryType
   | Credit CreditType 
   | Loan LoanType
   | Investment InvestmentType
   | Payroll PayrollType
-  | Other OtherType
-  deriving (Generic, ToJSON)
+  | Other
+
+instance ToJSON AccountType where
+  toJSON (Depository dt) = object ["type" .= textToJSON "depository", "subtype" .= toJSON dt]
+  toJSON (Credit ct) = object ["type" .= textToJSON "credit", "subtype" .= toJSON ct]
+  toJSON (Loan lt) = object ["type" .= textToJSON "loan", "subtype" .= toJSON lt]
+  toJSON (Investment it) = object ["type" .= textToJSON "investment", "subtype" .= toJSON it]
+  toJSON (Payroll pt) = object ["type" .= textToJSON "payroll", "subtype" .= toJSON pt]
+  toJSON Other = object ["type" .= textToJSON "other"]
 
 data DepositoryType =
     Checking        
@@ -58,14 +62,14 @@ data DepositoryType =
   deriving (Eq, Show, Generic)
 
 instance ToJSON DepositoryType where
-  toJSON Checking = toJSON ("checking" :: Text)
-  toJSON Savings = toJSON( "savings" :: Text)
-  toJSON Cd = toJSON ("cd" :: Text)
-  toJSON MoneyMarket = toJSON( "money market" :: Text)
-  toJSON DtPaypal = toJSON ("paypal" :: Text)
-  toJSON Prepaid = toJSON ("prepaid" :: Text)
-  toJSON Hsa = toJSON ("hsa" :: Text)
-  toJSON CashManagement = toJSON ("cash management" :: Text)  
+  toJSON Checking = textToJSON "checking"
+  toJSON Savings = textToJSON "savings"
+  toJSON Cd = textToJSON "cd"
+  toJSON MoneyMarket = textToJSON "money market"
+  toJSON DtPaypal = textToJSON "paypal"
+  toJSON Prepaid = textToJSON "prepaid"
+  toJSON Hsa = textToJSON "hsa"
+  toJSON CashManagement = textToJSON "cash management"  
 
 data CreditType =
     CreditCard
@@ -73,8 +77,8 @@ data CreditType =
   deriving (Eq, Show, Generic)
 
 instance ToJSON CreditType where
-  toJSON CreditCard = toJSON ("credit card" :: Text)
-  toJSON CtPaypal = toJSON ("paypal" :: Text)
+  toJSON CreditCard = textToJSON "credit card"
+  toJSON CtPaypal = textToJSON "paypal"
 
 data LoanType =
     Auto
@@ -92,18 +96,18 @@ data LoanType =
   deriving (Eq, Show, Generic)
 
 instance ToJSON LoanType where
-  toJSON Auto = toJSON ("auto" :: Text)
-  toJSON Business = toJSON ("business" :: Text)
-  toJSON Commercial = toJSON ("commercial" :: Text)
-  toJSON Construction = toJSON ("construction" :: Text)
-  toJSON Consumer = toJSON ("consumer" :: Text)
-  toJSON HomeEquity = toJSON ("home equity" :: Text)
-  toJSON LineOfCredit = toJSON ("line of credit" :: Text)
-  toJSON LtLoan = toJSON ("loan" :: Text)
-  toJSON Mortgage = toJSON ("mortgage" :: Text)
-  toJSON LtOther = toJSON ("other" :: Text)
-  toJSON Overdraft = toJSON ("overdraft" :: Text)
-  toJSON Student = toJSON ("student" :: Text)
+  toJSON Auto = textToJSON "auto"
+  toJSON Business = textToJSON "business"
+  toJSON Commercial = textToJSON "commercial"
+  toJSON Construction = textToJSON "construction"
+  toJSON Consumer = textToJSON "consumer"
+  toJSON HomeEquity = textToJSON "home equity"
+  toJSON LineOfCredit = textToJSON "line of credit"
+  toJSON LtLoan = textToJSON "loan"
+  toJSON Mortgage = textToJSON "mortgage"
+  toJSON LtOther = textToJSON "other"
+  toJSON Overdraft = textToJSON "overdraft"
+  toJSON Student = textToJSON "student"
 
 data InvestmentType =
     It529
@@ -159,62 +163,63 @@ data InvestmentType =
   deriving (Eq, Show, Generic)
 
 instance ToJSON InvestmentType where
-  toJSON It529 = toJSON ("529" :: Text)
-  toJSON It401a = toJSON ("401a" :: Text)
-  toJSON It401k = toJSON ("401k" :: Text)
-  toJSON It403b = toJSON ("403b" :: Text)
-  toJSON It457b = toJSON ("457b" :: Text)
-  toJSON Brokerage = toJSON ("brokerage" :: Text)
-  toJSON CashIsa = toJSON ("cash isa" :: Text)
-  toJSON CryptoExchange = toJSON ("crypto exchange" :: Text)
-  toJSON EducationSavingsAccount = toJSON ("education savings account" :: Text)
-  toJSON FixedAnnuity = toJSON ("fixed annuity" :: Text)
-  toJSON Gic = toJSON ("gic" :: Text)
-  toJSON HealthReimbursementArrangement = toJSON ("health reimbursement arrangement" :: Text)
-  toJSON ItHsa = toJSON ("hsa" :: Text)
-  toJSON Ira = toJSON ("ira" :: Text)
-  toJSON Isa = toJSON ("isa" :: Text)
-  toJSON Keogh = toJSON ("keogh" :: Text)
-  toJSON Lif = toJSON ("lif" :: Text)
-  toJSON LifeInsurance = toJSON ("life insurance" :: Text)
-  toJSON Lira = toJSON ("lira" :: Text)
-  toJSON Lrif = toJSON ("lrif" :: Text)
-  toJSON Lrsp = toJSON ("lrsp" :: Text)
-  toJSON MutualFund = toJSON ("mutual fund" :: Text)
-  toJSON NonCustodialWallet = toJSON ("non-custodial wallet" :: Text)
-  toJSON NonTaxableBrokerageAccount = toJSON ("non-taxable brokerage account" :: Text)
-  toJSON ItOther = toJSON ("other" :: Text)
-  toJSON OtherAnnuity = toJSON ("other annuity" :: Text)
-  toJSON OtherInsurance = toJSON ("other insurance" :: Text)
-  toJSON Pension = toJSON ("pension" :: Text)
-  toJSON Prif = toJSON ("prif" :: Text)
-  toJSON ProfitSharingPlan = toJSON ("profit sharing plan" :: Text)
-  toJSON Qshr = toJSON ("qshr" :: Text)
-  toJSON Rdsp = toJSON ("rdsp" :: Text)
-  toJSON Resp = toJSON ("resp" :: Text)
-  toJSON Retirement = toJSON ("retirement" :: Text)
-  toJSON Rlif = toJSON ("rlif" :: Text)
-  toJSON Roth = toJSON ("roth" :: Text)
-  toJSON Roth401k = toJSON ("roth 401k" :: Text)
-  toJSON Rrif = toJSON ("rrif" :: Text)
-  toJSON Rrsp = toJSON ("rrsp" :: Text)
-  toJSON Sarsep = toJSON ("sarsep" :: Text)
-  toJSON SepIra = toJSON ("sep ira" :: Text)
-  toJSON SimpleIra = toJSON ("simple ira" :: Text)
-  toJSON Sipp = toJSON ("sipp" :: Text)
-  toJSON StockPlan = toJSON ("stock plan" :: Text)
-  toJSON Tfsa = toJSON ("tfsa" :: Text)
-  toJSON ThriftSavingsPlan = toJSON ("thrift savings plan" :: Text)
-  toJSON Trust = toJSON ("trust" :: Text)
-  toJSON Ugma = toJSON ("ugma" :: Text)
-  toJSON Utma = toJSON ("utma" :: Text)
-  toJSON VariableAnnuity = toJSON ("variable annuity" :: Text)
+  toJSON It529 = textToJSON "529"
+  toJSON It401a = textToJSON "401a"
+  toJSON It401k = textToJSON "401k"
+  toJSON It403b = textToJSON "403b"
+  toJSON It457b = textToJSON "457b"
+  toJSON Brokerage = textToJSON "brokerage"
+  toJSON CashIsa = textToJSON "cash isa"
+  toJSON CryptoExchange = textToJSON "crypto exchange"
+  toJSON EducationSavingsAccount = textToJSON "education savings account"
+  toJSON FixedAnnuity = textToJSON "fixed annuity"
+  toJSON Gic = textToJSON "gic"
+  toJSON HealthReimbursementArrangement = textToJSON "health reimbursement arrangement"
+  toJSON ItHsa = textToJSON "hsa"
+  toJSON Ira = textToJSON "ira"
+  toJSON Isa = textToJSON "isa"
+  toJSON Keogh = textToJSON "keogh"
+  toJSON Lif = textToJSON "lif"
+  toJSON LifeInsurance = textToJSON "life insurance"
+  toJSON Lira = textToJSON "lira"
+  toJSON Lrif = textToJSON "lrif"
+  toJSON Lrsp = textToJSON "lrsp"
+  toJSON MutualFund = textToJSON "mutual fund"
+  toJSON NonCustodialWallet = textToJSON "non-custodial wallet"
+  toJSON NonTaxableBrokerageAccount = textToJSON "non-taxable brokerage account"
+  toJSON ItOther = textToJSON "other"
+  toJSON OtherAnnuity = textToJSON "other annuity"
+  toJSON OtherInsurance = textToJSON "other insurance"
+  toJSON Pension = textToJSON "pension"
+  toJSON Prif = textToJSON "prif"
+  toJSON ProfitSharingPlan = textToJSON "profit sharing plan"
+  toJSON Qshr = textToJSON "qshr"
+  toJSON Rdsp = textToJSON "rdsp"
+  toJSON Resp = textToJSON "resp"
+  toJSON Retirement = textToJSON "retirement"
+  toJSON Rlif = textToJSON "rlif"
+  toJSON Roth = textToJSON "roth"
+  toJSON Roth401k = textToJSON "roth 401k"
+  toJSON Rrif = textToJSON "rrif"
+  toJSON Rrsp = textToJSON "rrsp"
+  toJSON Sarsep = textToJSON "sarsep"
+  toJSON SepIra = textToJSON "sep ira"
+  toJSON SimpleIra = textToJSON "simple ira"
+  toJSON Sipp = textToJSON "sipp"
+  toJSON StockPlan = textToJSON "stock plan"
+  toJSON Tfsa = textToJSON "tfsa"
+  toJSON ThriftSavingsPlan = textToJSON "thrift savings plan"
+  toJSON Trust = textToJSON "trust"
+  toJSON Ugma = textToJSON "ugma"
+  toJSON Utma = textToJSON "utma"
+  toJSON VariableAnnuity = textToJSON "variable annuity"
 
-data PayrollType
-  deriving (Generic, ToJSON)
+data PayrollType =
+    PtPayroll
+  deriving (Eq, Show, Generic)
 
-data OtherType
-  deriving (Generic, ToJSON)
+instance ToJSON PayrollType where
+  toJSON PtPayroll = textToJSON "payroll"
 
 data Balances = Balances 
   { available :: Maybe AvailableBalance
