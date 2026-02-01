@@ -7,6 +7,7 @@ import Data.Aeson
 import Data.Text
 import GHC.Generics
 
+-- TODO remove ToJSON
 data Account = Account 
   { account_id :: AccountId
   , balances :: Balances
@@ -22,29 +23,33 @@ instance FromJSON Account where
   parseJSON = genericParseJSON defaultOptions
     { fieldLabelModifier = \case "account_type" -> "type"; s -> s }
 
+instance ToJSON Account where
+  toJSON = genericToJSON defaultOptions
+    { fieldLabelModifier = \case "account_type" -> "type"; s -> s }
+    
 newtype AccountId = AccountId
   { unAccountId :: Text }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
 
 newtype Mask = Mask
   { unMask :: Text }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
 
 newtype AccountName = AccountName
   { unAccountName :: Text }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
 
 newtype OfficialName = OfficialName
   { unOfficialName :: Text }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
 
 newtype AccountSubtype = AccountSubtype
   { unAccountSubtype :: Text }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
 
 newtype AccountType = AccountType
   { unAccountType :: Text }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
 
 data Balances = Balances 
   { available :: Maybe AvailableBalance
@@ -53,24 +58,24 @@ data Balances = Balances
   , limit :: Maybe Limit
   , unofficial_currency_code :: Maybe UnofficialCurrencyCode
   }
-  deriving (Generic, FromJSON)
+  deriving (Generic, ToJSON, FromJSON)
 
 newtype AvailableBalance = AvailableBalance
   { unAvailableBalance :: Double }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
 
 newtype CurrentBalance = CurrentBalance
   { unCurrentBalance :: Double }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
 
 newtype Limit = Limit
   { unLimit :: Double }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
 
 newtype IsoCurrencyCode = IsoCurrencyCode
   { unIsoCurrencyCode :: Text }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
 
 newtype UnofficialCurrencyCode = UnofficialCurrencyCode
   { unUnofficialCurrencyCode :: Text }
-  deriving newtype FromJSON
+  deriving newtype (ToJSON, FromJSON)
