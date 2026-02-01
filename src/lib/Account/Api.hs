@@ -3,6 +3,7 @@
 module Account.Api where
 
 import Control.Monad.Error.Class
+import Data.String.Conv
 import Katip
 import Servant
 
@@ -10,15 +11,14 @@ import Account.AccountService
 import Account.Types
 import Common.Katip
 import Common.Types
-import Plaid.Types
 
 type AccountApi = 
-  ( "accounts" :> "summary" :> Capture "user_id" UserId :> Get '[JSON] AccountResponse
+  ( "accounts" :> "summary" :> Capture "user_id" UserId :> Get '[JSON] AccountSummaryResponse
   )
 
 accountSummary :: 
   (MonadError ServerError m, KatipContext m) =>
-  AccountService m -> UserId -> m AccountResponse
+  AccountService m -> UserId -> m AccountSummaryResponse
 accountSummary accountService userId = addNameSpace . addUserIdToContext userId $ 
   logFM InfoS ("Requesting account summary for " <> logStr (show userId)) *>
   accountService.accountSummary userId >>= 
@@ -27,6 +27,8 @@ accountSummary accountService userId = addNameSpace . addUserIdToContext userId 
         throwError $ toServerError apiError
       PlaidLinkingError accessTokenNotFound -> 
         throwError $ err400 { errReasonPhrase = show accessTokenNotFound }
+      InvalidAccountData errMsg ->
+        throwError $ err422 { errReasonPhrase = toS errMsg }
     )
     pure
 

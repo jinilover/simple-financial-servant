@@ -2,9 +2,12 @@
 module Account.AccountService where
 
 import Data.Functor
+import Data.List.NonEmpty
+import Data.Text
+import Data.Validation
 import Katip
 
-import Account.Types.AccountSummaryError
+import Account.Types
 import Common.Types
 import Common.Utils
 import qualified Plaid.Types as PL
@@ -13,7 +16,7 @@ import PlaidLinking.Types
 import PlaidLinking.TokenService
 
 data AccountService m = AccountService
-  { accountSummary :: UserId -> m (Either AccountSummaryError PL.AccountResponse)
+  { accountSummary :: UserId -> m (Either AccountSummaryError AccountSummaryResponse)
   }
 
 mkAccountService :: 
@@ -31,7 +34,13 @@ mkAccountService plaidClient tokenService = AccountService
         Right accessToken -> 
           (plaidClient.accountSummary . PL.AccessToken . (.unAccessToken) $ accessToken) >>= \case 
             Left plaidError -> logFM ErrorS (logStr $ show plaidError) $> Left (PlaidClientError . fromPlaidError $ plaidError)
-            Right resp -> pureRight resp
+            Right accountResp -> 
+              case validatePLAccountResponse accountResp of
+                Failure texts -> 
+                  let errMsg = intercalate ", " $ toList texts
+                  in  logFM ErrorS (logStr errMsg) $> Left (InvalidAccountData errMsg)
+                Success summary -> 
+                  pureRight summary
   }
   where
     addNameSpace = katipAddNamespace "account-service"

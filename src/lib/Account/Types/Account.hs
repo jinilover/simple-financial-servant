@@ -243,7 +243,6 @@ instance ToJSON PayrollType where
 data Balances = Balances 
   { available :: Maybe AvailableBalance
   , current :: Maybe CurrentBalance
-  , limit :: Maybe Limit
   , currencyCode :: CurrencyCode
   }
   deriving (Generic, ToJSON)
@@ -256,14 +255,13 @@ newtype CurrentBalance = CurrentBalance
   { unCurrentBalance :: Double }
   deriving newtype ToJSON
 
-newtype Limit = Limit
-  { unLimit :: Double }
-  deriving newtype ToJSON
-
 data CurrencyCode = 
     Iso Text
   | Unofficial UnofficialCode
-  deriving (Generic, ToJSON)
+
+instance ToJSON CurrencyCode where
+  toJSON (Iso text) = toJSON text
+  toJSON (Unofficial unofficialCode) = toJSON unofficialCode
 
 data UnofficialCode = 
     ADA
@@ -304,7 +302,52 @@ validatePLAccount plAccount =
     <*> validateAccountType plAccount.account_type plAccount.subtype
   where
     validateBalances :: PL.Balances -> Validation (NonEmpty Text) Balances
-    validateBalances = undefined
+    validateBalances balances = 
+      uncurry Balances
+        <$> validateAvailableCurrent balances.available balances.current
+        <*> validateCurrencyCode balances.iso_currency_code balances.unofficial_currency_code
+
+    validateAvailableCurrent :: Maybe PL.AvailableBalance -> Maybe PL.CurrentBalance -> Validation (NonEmpty Text) (Maybe AvailableBalance, Maybe CurrentBalance)
+    validateAvailableCurrent Nothing Nothing = V.Failure $ singleton "Both available and current are empty"
+    validateAvailableCurrent maybeAvailable maybeCurrent = V.Success (fromPLAvailableBalance <$> maybeAvailable, fromPLCurrentBalance <$> maybeCurrent)
+
+    fromPLAvailableBalance = AvailableBalance . (.unAvailableBalance)
+
+    fromPLCurrentBalance = CurrentBalance . (.unCurrentBalance)
+
+    validateCurrencyCode :: Maybe PL.IsoCurrencyCode -> Maybe PL.UnofficialCurrencyCode -> Validation (NonEmpty Text) CurrencyCode
+    validateCurrencyCode maybeIsoCurrCode maybeUnofficialCurrCode = 
+      case ((.unIsoCurrencyCode) <$> maybeIsoCurrCode, (.unUnofficialCurrencyCode) <$> maybeUnofficialCurrCode) of
+        (Just _, Just _) -> V.Failure $ singleton "Both iso_currency_code and unofficial_currency_code have value"
+        (Nothing, Nothing) -> V.Failure $ singleton "Both iso_currency_code and unofficial_currency_code are empty"
+        (Just text, _) -> V.Success $ Iso text
+        (_, Just unofficialText) -> Unofficial <$> validateUnofficialCode unofficialText
+
+    validateUnofficialCode :: Text -> Validation (NonEmpty Text) UnofficialCode
+    validateUnofficialCode "ADA" = V.Success ADA
+    validateUnofficialCode "BAT" = V.Success BAT
+    validateUnofficialCode "BCH" = V.Success BCH
+    validateUnofficialCode "BNB" = V.Success BNB
+    validateUnofficialCode "BTC" = V.Success BTC
+    validateUnofficialCode "BTG" = V.Success BTG
+    validateUnofficialCode "BSV" = V.Success BSV
+    validateUnofficialCode "CNH" = V.Success CNH
+    validateUnofficialCode "DASH" = V.Success DASH
+    validateUnofficialCode "DOGE" = V.Success DOGE
+    validateUnofficialCode "ETC" = V.Success ETC
+    validateUnofficialCode "ETH" = V.Success ETH
+    validateUnofficialCode "GBX" = V.Success GBX
+    validateUnofficialCode "LSK" = V.Success LSK
+    validateUnofficialCode "NEO" = V.Success NEO
+    validateUnofficialCode "OMG" = V.Success OMG
+    validateUnofficialCode "QTUM" = V.Success QTUM
+    validateUnofficialCode "USDT" = V.Success USDT
+    validateUnofficialCode "XLM" = V.Success XLM
+    validateUnofficialCode "XMR" = V.Success XMR
+    validateUnofficialCode "XRP" = V.Success XRP
+    validateUnofficialCode "ZEC" = V.Success ZEC
+    validateUnofficialCode "ZRX" = V.Success ZRX
+    validateUnofficialCode t = V.Failure . singleton $ "Unknown unofficial currency code: " <> t
 
     fromPLAccountId = AccountId . (.unAccountId)
 
@@ -316,7 +359,7 @@ validatePLAccount plAccount =
 
     validateAccountType :: PL.AccountType -> Maybe PL.AccountSubtype -> Validation (NonEmpty Text) AccountType
     validateAccountType accountType maybeSubtype = 
-      case (accountType.unAccountType, fmap (.unAccountSubtype) maybeSubtype) of 
+      case (accountType.unAccountType, (.unAccountSubtype) <$> maybeSubtype ) of 
         ("depository", Just subtype) -> Depository <$> validateDepositoryType subtype
         ("depository", Nothing) -> V.Failure $ singleton "\"depository\" account type requires subtype"
         ("credit", Just subtype) -> Credit <$> validateCreditType subtype

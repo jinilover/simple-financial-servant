@@ -7,7 +7,6 @@ import GHC.Generics
 
 import Plaid.Types.Account
 
--- TODO remove ToJSON
 data AccountResponse = AccountResponse
   { accounts :: [Account] }
-  deriving (Generic, FromJSON, ToJSON)
+  deriving (Generic, FromJSON)

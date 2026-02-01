@@ -66,6 +66,7 @@ library lib
                     , Account.Types
                     , Account.Types.Account
                     , Account.Types.AccountSummaryError
+                    , Account.Types.AccountSummaryResponse
                     , Aeson.Utils
                     , AppConfig
                     , AppEnv
