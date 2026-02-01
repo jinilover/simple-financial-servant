@@ -3,15 +3,18 @@
 module Account.Types.Account where
 
 import Data.Aeson
-import Data.Text
+import Data.List.NonEmpty
+import Data.Text hiding (singleton)
+import Data.Validation as V
 import GHC.Generics
 
 import Aeson.Utils
+import qualified Plaid.Types as PL
 
 data Account = Account 
   { accountId :: AccountId
   , balances :: Balances
-  , mask :: Mask
+  , mask :: Maybe Mask
   , name :: AccountName
   , officialName :: Maybe OfficialName
   , accountType :: AccountType
@@ -43,12 +46,28 @@ data AccountType =
   | Other
 
 instance ToJSON AccountType where
-  toJSON (Depository dt) = object ["type" .= textToJSON "depository", "subtype" .= toJSON dt]
-  toJSON (Credit ct) = object ["type" .= textToJSON "credit", "subtype" .= toJSON ct]
-  toJSON (Loan lt) = object ["type" .= textToJSON "loan", "subtype" .= toJSON lt]
-  toJSON (Investment it) = object ["type" .= textToJSON "investment", "subtype" .= toJSON it]
-  toJSON (Payroll pt) = object ["type" .= textToJSON "payroll", "subtype" .= toJSON pt]
-  toJSON Other = object ["type" .= textToJSON "other"]
+  toJSON (Depository dt) = object 
+    [ "type" .= textToJSON "depository"
+    , "subtype" .= toJSON dt
+    ]
+  toJSON (Credit ct) = object 
+    [ "type" .= textToJSON "credit"
+    , "subtype" .= toJSON ct
+    ]
+  toJSON (Loan lt) = object 
+    [ "type" .= textToJSON "loan"
+    , "subtype" .= toJSON lt
+    ]
+  toJSON (Investment it) = object 
+    [ "type" .= textToJSON "investment"
+    , "subtype" .= toJSON it
+    ]
+  toJSON (Payroll pt) = object 
+    [ "type" .= textToJSON "payroll"
+    , "subtype" .= toJSON pt
+    ]
+  toJSON Other = object 
+    [ "type" .= textToJSON "other" ]
 
 data DepositoryType =
     Checking        
@@ -274,3 +293,30 @@ data UnofficialCode =
 
 instance ToJSON UnofficialCode where
   toJSON = genericToJSON defaultOptions
+
+validatePLAccount :: PL.Account -> Validation (NonEmpty Text) Account
+validatePLAccount plAccount = 
+  Account (fromPLAccountId plAccount.account_id)
+    <$> validateBalances plAccount.balances
+    <*> pure (fromPLMask plAccount.mask)
+    <*> pure (fromName plAccount.name)
+    <*> pure (fromOfficialName plAccount.official_name)
+    <*> validateAccountType plAccount.account_type plAccount.subtype
+  where
+    validateBalances :: PL.Balances -> Validation (NonEmpty Text) Balances
+    validateBalances = undefined
+
+    fromPLAccountId = AccountId . (.unAccountId)
+
+    fromPLMask = fmap (Mask . (.unMask))
+
+    fromName = AccountName . (.unAccountName)
+
+    fromOfficialName = fmap (OfficialName . (.unOfficialName))
+
+    validateAccountType :: PL.AccountType -> Maybe PL.AccountSubtype -> Validation (NonEmpty Text) AccountType
+    validateAccountType accountType maybeSubtype = 
+      case (accountType.unAccountType, fmap (.unAccountSubtype) maybeSubtype) of 
+        ("other", Nothing) -> V.Success Other
+        ("other", _) -> V.Failure $ singleton "\"other\" account type has subtype value"
+        (_, _) -> undefined

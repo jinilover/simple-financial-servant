@@ -11,10 +11,10 @@ import GHC.Generics
 data Account = Account 
   { account_id :: AccountId
   , balances :: Balances
-  , mask :: Mask
+  , mask :: Maybe Mask
   , name :: AccountName
   , official_name :: Maybe OfficialName
-  , subtype :: AccountSubtype
+  , subtype :: Maybe AccountSubtype
   , account_type :: AccountType
   }
   deriving Generic
@@ -26,7 +26,7 @@ instance FromJSON Account where
 instance ToJSON Account where
   toJSON = genericToJSON defaultOptions
     { fieldLabelModifier = \case "account_type" -> "type"; s -> s }
-    
+
 newtype AccountId = AccountId
   { unAccountId :: Text }
   deriving newtype (ToJSON, FromJSON)
