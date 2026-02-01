@@ -14,9 +14,9 @@ import qualified Plaid.Types as PL
 data Account = Account 
   { accountId :: AccountId
   , balances :: Balances
-  , mask :: Maybe Mask
+  , maybeMask :: Maybe Mask
   , name :: AccountName
-  , officialName :: Maybe OfficialName
+  , maybeOfficialName :: Maybe OfficialName
   , accountType :: AccountType
   }
   deriving (Generic, ToJSON)
@@ -243,8 +243,8 @@ instance ToJSON PayrollType where
 data Balances = Balances 
   { available :: Maybe AvailableBalance
   , current :: Maybe CurrentBalance
-  , currencyCode :: CurrencyCode
   , limit :: Maybe Limit
+  , currencyCode :: CurrencyCode
   }
   deriving (Generic, ToJSON)
 
@@ -317,6 +317,104 @@ validatePLAccount plAccount =
     validateAccountType :: PL.AccountType -> Maybe PL.AccountSubtype -> Validation (NonEmpty Text) AccountType
     validateAccountType accountType maybeSubtype = 
       case (accountType.unAccountType, fmap (.unAccountSubtype) maybeSubtype) of 
+        ("depository", Just subtype) -> Depository <$> validateDepositoryType subtype
+        ("depository", Nothing) -> V.Failure $ singleton "\"depository\" account type requires subtype"
+        ("credit", Just subtype) -> Credit <$> validateCreditType subtype
+        ("credit", Nothing) -> V.Failure $ singleton "\"credit\" account type requires subtype"
+        ("loan", Just subtype) -> Loan <$> validateLoanType subtype
+        ("loan", Nothing) -> V.Failure $ singleton "\"loan\" account type requires subtype"
+        ("investment", Just subtype) -> Investment <$> validateInvestmentType subtype
+        ("investment", Nothing) -> V.Failure $ singleton "\"investment\" account type requires subtype"
+        ("payroll", Just subtype) -> Payroll <$> validatePayrollType subtype
+        ("payroll", Nothing) -> V.Failure $ singleton "\"payroll\" account type requires subtype"
         ("other", Nothing) -> V.Success Other
         ("other", _) -> V.Failure $ singleton "\"other\" account type has subtype value"
-        (_, _) -> undefined
+        (unknownType, _) -> V.Failure . singleton $ "Unknown account type: " <> unknownType
+
+    validateDepositoryType :: Text -> Validation (NonEmpty Text) DepositoryType
+    validateDepositoryType "checking" = V.Success Checking
+    validateDepositoryType "savings" = V.Success Savings
+    validateDepositoryType "cd" = V.Success Cd
+    validateDepositoryType "money market" = V.Success MoneyMarket
+    validateDepositoryType "paypal" = V.Success DtPaypal
+    validateDepositoryType "prepaid" = V.Success Prepaid
+    validateDepositoryType "hsa" = V.Success Hsa
+    validateDepositoryType "cash management" = V.Success CashManagement
+    validateDepositoryType t = V.Failure . singleton $ "Unknown depository subtype: " <> t
+
+    validateCreditType :: Text -> Validation (NonEmpty Text) CreditType
+    validateCreditType "credit card" = V.Success CreditCard
+    validateCreditType "paypal" = V.Success CtPaypal
+    validateCreditType t = V.Failure . singleton $ "Unknown credit subtype: " <> t
+
+    validateLoanType :: Text -> Validation (NonEmpty Text) LoanType
+    validateLoanType "auto" = V.Success Auto
+    validateLoanType "business" = V.Success Business
+    validateLoanType "commercial" = V.Success Commercial
+    validateLoanType "construction" = V.Success Construction
+    validateLoanType "consumer" = V.Success Consumer
+    validateLoanType "home equity" = V.Success HomeEquity
+    validateLoanType "line of credit" = V.Success LineOfCredit
+    validateLoanType "loan" = V.Success LtLoan
+    validateLoanType "mortgage" = V.Success Mortgage
+    validateLoanType "other" = V.Success LtOther
+    validateLoanType "overdraft" = V.Success Overdraft
+    validateLoanType "student" = V.Success Student
+    validateLoanType t = V.Failure . singleton $ "Unknown loan subtype: " <> t
+
+    validateInvestmentType :: Text -> Validation (NonEmpty Text) InvestmentType
+    validateInvestmentType "529" = V.Success It529
+    validateInvestmentType "401a" = V.Success It401a
+    validateInvestmentType "401k" = V.Success It401k
+    validateInvestmentType "403b" = V.Success It403b
+    validateInvestmentType "457b" = V.Success It457b
+    validateInvestmentType "brokerage" = V.Success Brokerage
+    validateInvestmentType "cash isa" = V.Success CashIsa
+    validateInvestmentType "crypto exchange" = V.Success CryptoExchange
+    validateInvestmentType "education savings account" = V.Success EducationSavingsAccount
+    validateInvestmentType "fixed annuity" = V.Success FixedAnnuity
+    validateInvestmentType "gic" = V.Success Gic
+    validateInvestmentType "health reimbursement arrangement" = V.Success HealthReimbursementArrangement
+    validateInvestmentType "hsa" = V.Success ItHsa
+    validateInvestmentType "ira" = V.Success Ira
+    validateInvestmentType "isa" = V.Success Isa
+    validateInvestmentType "keogh" = V.Success Keogh
+    validateInvestmentType "lif" = V.Success Lif
+    validateInvestmentType "life insurance" = V.Success LifeInsurance
+    validateInvestmentType "lira" = V.Success Lira
+    validateInvestmentType "lrif" = V.Success Lrif
+    validateInvestmentType "lrsp" = V.Success Lrsp
+    validateInvestmentType "mutual fund" = V.Success MutualFund
+    validateInvestmentType "non-custodial wallet" = V.Success NonCustodialWallet
+    validateInvestmentType "non-taxable brokerage account" = V.Success NonTaxableBrokerageAccount
+    validateInvestmentType "other" = V.Success ItOther
+    validateInvestmentType "other annuity" = V.Success OtherAnnuity
+    validateInvestmentType "other insurance" = V.Success OtherInsurance
+    validateInvestmentType "pension" = V.Success Pension
+    validateInvestmentType "prif" = V.Success Prif
+    validateInvestmentType "profit sharing plan" = V.Success ProfitSharingPlan
+    validateInvestmentType "qshr" = V.Success Qshr
+    validateInvestmentType "rdsp" = V.Success Rdsp
+    validateInvestmentType "resp" = V.Success Resp
+    validateInvestmentType "retirement" = V.Success Retirement
+    validateInvestmentType "rlif" = V.Success Rlif
+    validateInvestmentType "roth" = V.Success Roth
+    validateInvestmentType "roth 401k" = V.Success Roth401k
+    validateInvestmentType "rrif" = V.Success Rrif
+    validateInvestmentType "rrsp" = V.Success Rrsp
+    validateInvestmentType "sarsep" = V.Success Sarsep
+    validateInvestmentType "sep ira" = V.Success SepIra
+    validateInvestmentType "simple ira" = V.Success SimpleIra
+    validateInvestmentType "sipp" = V.Success Sipp
+    validateInvestmentType "stock plan" = V.Success StockPlan
+    validateInvestmentType "tfsa" = V.Success Tfsa
+    validateInvestmentType "thrift savings plan" = V.Success ThriftSavingsPlan
+    validateInvestmentType "trust" = V.Success Trust
+    validateInvestmentType "ugma" = V.Success Ugma
+    validateInvestmentType "utma" = V.Success Utma
+    validateInvestmentType "variable annuity" = V.Success VariableAnnuity
+    validateInvestmentType t = V.Failure . singleton $ "Unknown investment subtype: " <> t
+
+    validatePayrollType :: Text -> Validation (NonEmpty Text) PayrollType
+    validatePayrollType "payroll" = V.Success PtPayroll
+    validatePayrollType t = V.Failure . singleton $ "Unknown payroll subtype: " <> t
