@@ -89,7 +89,7 @@ library lib
                     , Plaid.Types.AccessToken
                     , Plaid.Types.Account
                     , Plaid.Types.AccountRequest
-                    , Plaid.Types.AccountResponse
+                    , Plaid.Types.AccountListResponse
                     , Plaid.Types.ClientId
                     , Plaid.Types.CreatePublicTokenRequest
                     , Plaid.Types.CreatePublicTokenResponse

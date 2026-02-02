@@ -31,16 +31,16 @@ exchangeAccessTokenCM :: ExchangeAccessTokenRequest -> ClientM ExchangeAccessTok
 createPublicTokenCM :: CreatePublicTokenRequest -> ClientM CreatePublicTokenResponse
 
 type AccountApi =
-        "accounts" :> "get" :> ReqBody '[JSON] AccountRequest :> Post '[JSON] AccountResponse
+        "accounts" :> "get" :> ReqBody '[JSON] AccountRequest :> Post '[JSON] AccountListResponse
 
-accountSummaryCM :: AccountRequest -> ClientM AccountResponse
+getAccountsCM :: AccountRequest -> ClientM AccountListResponse
 
-(exchangeAccessTokenCM :<|> createPublicTokenCM) :<|> accountSummaryCM = client (Proxy @PlaidApi)
+(exchangeAccessTokenCM :<|> createPublicTokenCM) :<|> getAccountsCM = client (Proxy @PlaidApi)
 
 data PlaidClient m  = PlaidClient
   { exchangeAccessToken :: PublicToken -> m (Either PlaidError ExchangeAccessTokenResponse)
   , createPublicToken :: m (Either PlaidError CreatePublicTokenResponse)
-  , accountSummary :: AccessToken -> m (Either PlaidError AccountResponse)
+  , getAccounts :: AccessToken -> m (Either PlaidError AccountListResponse)
   }
 
 mkPlaidClient :: forall m r.
@@ -54,9 +54,9 @@ mkPlaidClient = PlaidClient
       let institution_id = Institution3
           initial_products = [Auth]
       in  callClient "Creating public token" (createPublicTokenCM CreatePublicTokenRequest {..})
-  , accountSummary = \accessToken -> mkCred >>= \cred ->
+  , getAccounts = \accessToken -> mkCred >>= \cred ->
       let req = uncurry AccountRequest cred accessToken 
-      in  callClient "Requesting account information" (accountSummaryCM req)
+      in  callClient "Requesting account information" (getAccountsCM req)
   }
   where
     mkCred :: m (ClientId, SecretKey)

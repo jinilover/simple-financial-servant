@@ -2,7 +2,7 @@ module Plaid.Types
   ( module Plaid.Types.AccessToken
   , module Plaid.Types.Account
   , module Plaid.Types.AccountRequest
-  , module Plaid.Types.AccountResponse
+  , module Plaid.Types.AccountListResponse
   , module Plaid.Types.ClientId
   , module Plaid.Types.CreatePublicTokenRequest
   , module Plaid.Types.CreatePublicTokenResponse
@@ -24,7 +24,7 @@ where
 import Plaid.Types.AccessToken
 import Plaid.Types.Account
 import Plaid.Types.AccountRequest
-import Plaid.Types.AccountResponse
+import Plaid.Types.AccountListResponse
 import Plaid.Types.ClientId
 import Plaid.Types.CreatePublicTokenRequest
 import Plaid.Types.CreatePublicTokenResponse

@@ -15,5 +15,5 @@ data AccountSummaryResponse = AccountSummaryResponse
   }
   deriving (Generic, Show, ToJSON)
 
-validatePLAccountResponse :: PL.AccountResponse -> Validation (NonEmpty Text) AccountSummaryResponse
-validatePLAccountResponse = fmap AccountSummaryResponse . traverse validatePLAccount . (.accounts)
+validatePLAccountListResponse :: PL.AccountListResponse -> Validation (NonEmpty Text) AccountSummaryResponse
+validatePLAccountListResponse = fmap AccountSummaryResponse . traverse validatePLAccount . (.accounts)

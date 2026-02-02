@@ -1,12 +1,12 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
-module Plaid.Types.AccountResponse where
+module Plaid.Types.AccountListResponse where
 
 import Data.Aeson
 import GHC.Generics
 
 import Plaid.Types.Account
 
-data AccountResponse = AccountResponse
+data AccountListResponse = AccountListResponse
   { accounts :: [Account] }
   deriving (Show, Generic, FromJSON)

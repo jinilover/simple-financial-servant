@@ -29,18 +29,19 @@ mkAccountService plaidClient tokenService = AccountService
       addNameSpace $
       logFM InfoS ("Requesting account summary for " <> logStr (show userId)) *> 
       tokenService.fetchAccessTokenData userId >>= \case
-        Left tokenNotFound -> 
-          logFM ErrorS (logStr $ show tokenNotFound) $> Left (PlaidLinkingError tokenNotFound)
-        Right accessToken -> 
-          (plaidClient.accountSummary . PL.AccessToken . (.unAccessToken) $ accessToken) >>= \case 
-            Left plaidError -> logFM ErrorS (logStr $ show plaidError) $> Left (PlaidClientError . fromPlaidError $ plaidError)
-            Right accountResp -> 
-              case validatePLAccountResponse accountResp of
-                Failure texts -> 
-                  let errMsg = intercalate ", " $ toList texts
-                  in  logFM ErrorS (logStr errMsg) $> Left (InvalidAccountData errMsg)
-                Success summary -> 
-                  pureRight summary
+        Left tokenNotFound -> logFM ErrorS (logStr $ show tokenNotFound) $> Left (PlaidLinkingError tokenNotFound)
+        Right accessToken -> callForAccounts accessToken
   }
   where
     addNameSpace = katipAddNamespace "account-service"
+    
+    callForAccounts accessToken = 
+      (plaidClient.getAccounts . PL.AccessToken . (.unAccessToken) $ accessToken) >>= \case 
+        Left plaidError -> logFM ErrorS (logStr $ show plaidError) $> Left (PlaidClientError . fromPlaidError $ plaidError)
+        Right accountResp -> 
+          case validatePLAccountListResponse accountResp of
+            Failure texts -> 
+              let errMsg = intercalate ", " $ toList texts
+              in  logFM ErrorS (logStr errMsg) $> Left (InvalidAccountData errMsg)
+            Success summary -> 
+              pureRight summary
