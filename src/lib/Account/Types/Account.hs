@@ -19,22 +19,26 @@ data Account = Account
   , maybeOfficialName :: Maybe OfficialName
   , accountType :: AccountType
   }
-  deriving (Generic, ToJSON)
+  deriving (Generic, Show, ToJSON)
 
 newtype AccountId = AccountId
   { unAccountId :: Text }
+  deriving Show
   deriving newtype ToJSON
 
 newtype Mask = Mask
   { unMask :: Text }
+  deriving Show
   deriving newtype ToJSON
 
 newtype AccountName = AccountName
   { unAccountName :: Text }
+  deriving Show
   deriving newtype ToJSON
 
 newtype OfficialName = OfficialName
   { unOfficialName :: Text }
+  deriving Show
   deriving newtype ToJSON
 
 data AccountType = 
@@ -44,6 +48,7 @@ data AccountType =
   | Investment InvestmentType
   | Payroll PayrollType
   | Other
+  deriving Show
 
 instance ToJSON AccountType where
   toJSON (Depository dt) = object 
@@ -245,19 +250,22 @@ data Balances = Balances
   , current :: Maybe CurrentBalance
   , currencyCode :: CurrencyCode
   }
-  deriving (Generic, ToJSON)
+  deriving (Generic, Show, ToJSON)
 
 newtype AvailableBalance = AvailableBalance
   { unAvailableBalance :: Double }
+  deriving Show
   deriving newtype ToJSON
 
 newtype CurrentBalance = CurrentBalance
   { unCurrentBalance :: Double }
+  deriving Show
   deriving newtype ToJSON
 
 data CurrencyCode = 
     Iso Text
   | Unofficial UnofficialCode
+  deriving Show
 
 instance ToJSON CurrencyCode where
   toJSON (Iso text) = toJSON text

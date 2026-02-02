@@ -13,7 +13,7 @@ import qualified Plaid.Types as PL
 data AccountSummaryResponse = AccountSummaryResponse
   { accounts :: [Account]
   }
-  deriving (Generic, ToJSON)
+  deriving (Generic, Show, ToJSON)
 
 validatePLAccountResponse :: PL.AccountResponse -> Validation (NonEmpty Text) AccountSummaryResponse
 validatePLAccountResponse = fmap AccountSummaryResponse . traverse validatePLAccount . (.accounts)

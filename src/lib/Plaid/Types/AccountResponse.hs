@@ -9,4 +9,4 @@ import Plaid.Types.Account
 
 data AccountResponse = AccountResponse
   { accounts :: [Account] }
-  deriving (Generic, FromJSON)
+  deriving (Show, Generic, FromJSON)

@@ -16,7 +16,7 @@ data Account = Account
   , subtype :: Maybe AccountSubtype
   , account_type :: AccountType
   }
-  deriving Generic
+  deriving (Generic, Show)
 
 instance FromJSON Account where
   parseJSON = genericParseJSON defaultOptions
@@ -24,26 +24,32 @@ instance FromJSON Account where
 
 newtype AccountId = AccountId
   { unAccountId :: Text }
+  deriving Show
   deriving newtype FromJSON
 
 newtype Mask = Mask
   { unMask :: Text }
+  deriving Show
   deriving newtype FromJSON
 
 newtype AccountName = AccountName
   { unAccountName :: Text }
+  deriving Show
   deriving newtype FromJSON
 
 newtype OfficialName = OfficialName
   { unOfficialName :: Text }
+  deriving Show
   deriving newtype FromJSON
 
 newtype AccountSubtype = AccountSubtype
   { unAccountSubtype :: Text }
+  deriving Show
   deriving newtype FromJSON
 
 newtype AccountType = AccountType
   { unAccountType :: Text }
+  deriving Show
   deriving newtype FromJSON
 
 data Balances = Balances 
@@ -53,24 +59,29 @@ data Balances = Balances
   , limit :: Maybe Limit
   , unofficial_currency_code :: Maybe UnofficialCurrencyCode
   }
-  deriving (Generic, FromJSON)
+  deriving (Generic, Show, FromJSON)
 
 newtype AvailableBalance = AvailableBalance
   { unAvailableBalance :: Double }
+  deriving Show
   deriving newtype FromJSON
 
 newtype CurrentBalance = CurrentBalance
   { unCurrentBalance :: Double }
+  deriving Show
   deriving newtype FromJSON
 
 newtype Limit = Limit
   { unLimit :: Double }
+  deriving Show
   deriving newtype FromJSON
 
 newtype IsoCurrencyCode = IsoCurrencyCode
   { unIsoCurrencyCode :: Text }
+  deriving Show
   deriving newtype FromJSON
 
 newtype UnofficialCurrencyCode = UnofficialCurrencyCode
   { unUnofficialCurrencyCode :: Text }
+  deriving Show
   deriving newtype FromJSON
