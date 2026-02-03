@@ -130,6 +130,7 @@ library lib
     build-depends:    base
                     , aeson
                     , bytestring
+                    , containers
                     , dhall
                     , exceptions
                     , http-client-tls

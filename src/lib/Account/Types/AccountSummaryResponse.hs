@@ -1,19 +1,36 @@
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DerivingStrategies #-}
 module Account.Types.AccountSummaryResponse where
 
 import Data.Aeson
-import Data.List.NonEmpty
-import Data.Text
-import Data.Validation
 import GHC.Generics
 
 import Account.Types.Account
-import qualified Plaid.Types as PL
+
+type TotalAmount = AvailableBalance
 
 data AccountSummaryResponse = AccountSummaryResponse
-  { accounts :: [Account]
+  { summaryByCurrencies :: [SummaryByCurrency]
+  , accounts :: [Account]
   }
   deriving (Generic, Show, ToJSON)
 
-validatePLAccountListResponse :: PL.AccountListResponse -> Validation (NonEmpty Text) AccountSummaryResponse
-validatePLAccountListResponse = fmap AccountSummaryResponse . traverse validatePLAccount . (.accounts)
+data SummaryByCurrency = SummaryByCurrency
+  { currency :: CurrencyCode
+  , total :: TotalAmount
+  , summaryByAccountTypes :: [SummaryByAccountType]
+  }
+  deriving (Generic, Show, ToJSON)
+
+data SummaryByAccountType = SummaryByAccountType
+  { accountType :: AccountType
+  , total :: TotalAmount
+  , summaryBySubtypes :: [SummaryBySubtype]
+  }
+  deriving (Generic, Show, ToJSON)
+
+data SummaryBySubtype = SummaryBySubtype
+  { subtype :: Subtype
+  , total :: TotalAmount
+  }
+  deriving (Generic, Show, ToJSON)
