@@ -61,7 +61,8 @@ common lang
 library lib
     import:           warnings
                     , lang
-    exposed-modules:  Account.AccountService
+    exposed-modules:  Bootstrap
+    other-modules:    Account.AccountService
                     , Account.Api
                     , Account.Types
                     , Account.Types.Account
@@ -70,7 +71,6 @@ library lib
                     , Aeson.Utils
                     , AppConfig
                     , AppEnv
-                    , Bootstrap
                     , Common.Katip
                     , Common.Types
                     , Common.Types.ErrorResponseBody
@@ -124,8 +124,7 @@ library lib
                     , Store.Types.EssentialColumns
                     , Store.Types.StoreEnv
                     , Store.Utils
-    autogen-modules:  Paths_plaid_application_server
-    other-modules:    Paths_plaid_application_server
+                    , Paths_plaid_application_server
     hs-source-dirs:   src/lib
     build-depends:    base
                     , aeson
