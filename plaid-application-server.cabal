@@ -158,6 +158,7 @@ test-suite lib-test
                     , lang
     type:             exitcode-stdio-1.0
     main-is:          Test.hs
+    other-modules:    Account.AccountServiceTest
     hs-source-dirs:   tests/lib
     build-depends:    base
                     , hedgehog
