@@ -61,8 +61,7 @@ common lang
 library lib
     import:           warnings
                     , lang
-    exposed-modules:  Bootstrap
-    other-modules:    Account.AccountService
+    exposed-modules:  Account.AccountService
                     , Account.Api
                     , Account.Types
                     , Account.Types.Account
@@ -71,6 +70,7 @@ library lib
                     , Aeson.Utils
                     , AppConfig
                     , AppEnv
+                    , Bootstrap
                     , Common.Katip
                     , Common.Types
                     , Common.Types.ErrorResponseBody
@@ -124,7 +124,7 @@ library lib
                     , Store.Types.EssentialColumns
                     , Store.Types.StoreEnv
                     , Store.Utils
-                    , Paths_plaid_application_server
+    other-modules:    Paths_plaid_application_server
     hs-source-dirs:   src/lib
     build-depends:    base
                     , aeson
@@ -159,16 +159,22 @@ test-suite lib-test
     type:             exitcode-stdio-1.0
     main-is:          Test.hs
     other-modules:    Account.AccountServiceTest
+                    , Common.Gen
+                    , Common.TestUtils
     hs-source-dirs:   tests/lib
-    build-depends:    base
+    build-depends:    lib
+                    , base
+                    , uuid
                     , hedgehog
+                    , katip
                     , tasty
                     , tasty-hedgehog
+
 
 executable plaid-application-server
     import:           warnings
                     , lang
     main-is:          Main.hs
     hs-source-dirs:   src/app
-    build-depends:    base
-                    , lib
+    build-depends:    lib
+                    , base

@@ -1,4 +1,7 @@
-module Bootstrap where
+module Bootstrap 
+  ( bootstrap
+  )
+where
 
 import Control.Exception
 import Katip
