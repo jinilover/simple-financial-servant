@@ -1,3 +1,4 @@
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 module Plaid.Client 
@@ -65,7 +66,7 @@ mkPlaidClient = PlaidClient
         <*> fmap fromPSSecretKey (view configSecretKey)
 
     callClient :: Text -> ClientM a -> m (Either PlaidError a)
-    callClient action clientM = katipAddNamespace "client-plaid" $
+    callClient action clientM = katipAddNamespace "client-plaid" 
       do
         logFM InfoS $ logStr action 
         clientEnv <- (.unPlaidClientEnv) <$> view plaidClientEnv
