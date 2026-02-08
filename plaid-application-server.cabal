@@ -159,6 +159,7 @@ test-suite lib-test
     type:             exitcode-stdio-1.0
     main-is:          Test.hs
     other-modules:    Account.AccountServiceTest
+                    , Account.TestDataTypes
                     , Common.Gen
                     , Common.TestUtils
     hs-source-dirs:   tests/lib
@@ -166,6 +167,7 @@ test-suite lib-test
                     , base
                     , uuid
                     , hedgehog
+                    , http-types
                     , katip
                     , tasty
                     , tasty-hedgehog
