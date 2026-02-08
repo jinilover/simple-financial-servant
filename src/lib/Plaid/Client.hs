@@ -48,15 +48,15 @@ mkPlaidClient :: forall m r.
   (MonadReader r m, HasPlaidClientEnv r, HasPlaidConfig r, KatipContext m) =>
   PlaidClient m
 mkPlaidClient = PlaidClient 
-  { exchangeAccessToken = \publicToken -> mkCred >>= \cred ->
-      let req = uncurry ExchangeAccessTokenRequest cred publicToken
+  { exchangeAccessToken = \public_token -> mkCred >>= \(client_id, secret) ->
+      let req = ExchangeAccessTokenRequest {..}
       in  callClient "Exchanging access token" (exchangeAccessTokenCM req)
   , createPublicToken = mkCred >>= \(client_id, secret) ->
       let institution_id = Institution3
           initial_products = [Auth]
       in  callClient "Creating public token" (createPublicTokenCM CreatePublicTokenRequest {..})
-  , getAccounts = \accessToken -> mkCred >>= \cred ->
-      let req = uncurry AccountRequest cred accessToken 
+  , getAccounts = \access_token -> mkCred >>= \(client_id, secret) ->
+      let req = AccountRequest {..}
       in  callClient "Requesting account information" (getAccountsCM req)
   }
   where
