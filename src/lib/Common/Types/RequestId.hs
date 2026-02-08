@@ -7,7 +7,7 @@ import qualified Plaid.Types as PL
 
 newtype RequestId = RequestId
   { unRequestId :: Text }
-  deriving (ToJSON, Show)
+  deriving (Eq, Show, ToJSON)
 
 fromPLRequestId :: PL.RequestId -> RequestId
 fromPLRequestId = RequestId . (.unRequestId)  

@@ -32,14 +32,14 @@ test_accountSummary_accessNotFound :: Property
 test_accountSummary_accessNotFound = property 
   do
     userId <- UserId <$> genUUID
-
     actual <- withKatipContext $ 
                 let accountService = mkAccountService plaidClientNoop tokenServiceStub
                 in accountService.accountSummary userId
-
-    case actual of
-      Left (PlaidLinkingError (AccessTokenNotFound userUuid)) -> userUuid === userId
-      _ -> failure
+    let expected = Left . PlaidLinkingError . AccessTokenNotFound $ userId
+    actual === expected
+    -- case actual of
+    --   Left (PlaidLinkingError (AccessTokenNotFound userUuid)) -> userUuid === userId
+    --   _ -> failure
   where
     tokenServiceStub = TokenService
       { exchangeToken = shouldNotBeCalled
@@ -52,8 +52,12 @@ test_accountSummary_accessNotFound = property
       , getAccounts = shouldNotBeCalled
       }
 
+-- test_accountSummary_plaidError :: Property
+-- test_accountSummary_plaidError = undefined
+
 tests :: [TestTree]
 tests = 
   [ testProperty "accountSummary" test_accountSummary
   , testProperty "accountSummary_accessNotFound" test_accountSummary_accessNotFound
+  -- , testProperty "accountSummary_plaidError" test_accountSummary_plaidError
   ]

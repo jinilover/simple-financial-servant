@@ -13,7 +13,7 @@ import Common.Types.RequestId
 data ErrorResponseBody = 
     Payload ByteString
   | StructuredResp ErrorResponse
-  deriving Show
+  deriving (Eq, Show)
 
 fromPLErrorResponseBody :: PL.ErrorResponseBody -> ErrorResponseBody
 fromPLErrorResponseBody (PL.Payload bs) = Payload bs
@@ -26,7 +26,7 @@ data ErrorResponse = ErrorResponse {
     , error_type :: ErrorType
     , request_id :: RequestId
     }
-  deriving (Show, Generic, ToJSON)
+  deriving (Eq, Show, Generic, ToJSON)
 
 fromPLErrorResponse :: PL.ErrorResponse -> ErrorResponse
 fromPLErrorResponse PL.ErrorResponse {..} = 
@@ -39,7 +39,7 @@ fromPLErrorResponse PL.ErrorResponse {..} =
 
 newtype DisplayMessage = DisplayMessage
   { unDisplayMessage :: Text }
-  deriving Show
+  deriving (Eq, Show)
   deriving ToJSON via Text
 
 fromPLDisplayMessage :: PL.DisplayMessage -> DisplayMessage
@@ -47,7 +47,7 @@ fromPLDisplayMessage = DisplayMessage . (.unDisplayMessage)
 
 newtype ErrorCode = ErrorCode
   { unErrorCode :: Text }
-  deriving Show
+  deriving (Eq, Show)
   deriving ToJSON via Text
 
 fromPLErrorCode :: PL.ErrorCode -> ErrorCode
@@ -55,7 +55,7 @@ fromPLErrorCode = ErrorCode . (.unErrorCode)
 
 newtype ErrorMessage = ErrorMessage
   { unErrorMessage :: Text }
-  deriving Show
+  deriving (Eq, Show)
   deriving ToJSON via Text
 
 fromPLErrorMessage :: PL.ErrorMessage -> ErrorMessage
@@ -63,7 +63,7 @@ fromPLErrorMessage = ErrorMessage . (.unErrorMessage)
 
 newtype ErrorType = ErrorType
   { unErrorType :: Text }
-  deriving Show
+  deriving (Eq, Show)
   deriving ToJSON via Text
 
 fromPLErrorType :: PL.ErrorType -> ErrorType

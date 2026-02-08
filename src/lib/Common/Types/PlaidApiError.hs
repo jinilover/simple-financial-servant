@@ -14,7 +14,7 @@ data PlaidApiError =
     DecodeFailure Text ByteString
   | CommsError Text
   | PlaidErrorResponse Status ErrorResponseBody
-  deriving Show
+  deriving (Eq, Show)
 
 fromPlaidError :: PlaidError -> PlaidApiError
 fromPlaidError DeserializationError {..} = DecodeFailure errorMsg jsonString

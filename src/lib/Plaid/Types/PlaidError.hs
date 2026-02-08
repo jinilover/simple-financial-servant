@@ -11,4 +11,4 @@ data PlaidError =
   | HttpError { errorMsg :: Text } 
   | NetworkError { errorMsg :: Text}
   | ApiErrorResponse { status :: Status, errorBody :: ErrorResponseBody }
-  deriving Show
+  deriving (Eq, Show)

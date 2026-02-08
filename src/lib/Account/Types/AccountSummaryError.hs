@@ -9,3 +9,4 @@ data AccountSummaryError =
     PlaidClientError PlaidApiError
   | PlaidLinkingError AccessTokenNotFound
   | InvalidAccountData Text
+  deriving (Eq, Show)

@@ -20,26 +20,26 @@ data Account = Account
   , accountType :: AccountType
   , subtype :: Subtype
   }
-  deriving (Generic, Show, ToJSON)
+  deriving (Eq, Generic, Show, ToJSON)
 
 newtype AccountId = AccountId
   { unAccountId :: Text }
-  deriving Show
+  deriving (Eq, Show)
   deriving newtype ToJSON
 
 newtype Mask = Mask
   { unMask :: Text }
-  deriving Show
+  deriving (Eq, Show)
   deriving newtype ToJSON
 
 newtype AccountName = AccountName
   { unAccountName :: Text }
-  deriving Show
+  deriving (Eq, Show)
   deriving newtype ToJSON
 
 newtype OfficialName = OfficialName
   { unOfficialName :: Text }
-  deriving Show
+  deriving (Eq, Show)
   deriving newtype ToJSON
 
 data AccountType =
@@ -61,16 +61,16 @@ data Balances = Balances
   , maybeCurrent :: Maybe CurrentBalance
   , currencyCode :: CurrencyCode
   }
-  deriving (Generic, Show, ToJSON)
+  deriving (Eq, Generic, Show, ToJSON)
 
 newtype AvailableBalance = AvailableBalance
   { unAvailableBalance :: Double }
-  deriving Show
+  deriving (Eq, Show)
   deriving newtype ToJSON
 
 newtype CurrentBalance = CurrentBalance
   { unCurrentBalance :: Double }
-  deriving Show
+  deriving (Eq, Show)
   deriving newtype ToJSON
 
 data CurrencyCode = 

@@ -5,4 +5,4 @@ import Data.Text
 
 newtype RequestId = RequestId
   { unRequestId :: Text }
-  deriving (Show, FromJSON)
+  deriving (Eq, Show, FromJSON)

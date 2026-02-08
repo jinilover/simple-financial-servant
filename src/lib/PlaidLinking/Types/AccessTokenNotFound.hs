@@ -3,4 +3,4 @@ module PlaidLinking.Types.AccessTokenNotFound where
 import Common.Types.UserId
 
 newtype AccessTokenNotFound = AccessTokenNotFound UserId
-  deriving Show
+  deriving (Eq, Show)

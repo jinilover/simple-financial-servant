@@ -13,24 +13,24 @@ data AccountSummaryResponse = AccountSummaryResponse
   { summaryByCurrencies :: [SummaryByCurrency]
   , accounts :: [Account]
   }
-  deriving (Generic, Show, ToJSON)
+  deriving (Eq, Generic, Show, ToJSON)
 
 data SummaryByCurrency = SummaryByCurrency
   { currency :: CurrencyCode
   , total :: TotalAmount
   , summaryByAccountTypes :: [SummaryByAccountType]
   }
-  deriving (Generic, Show, ToJSON)
+  deriving (Eq, Generic, Show, ToJSON)
 
 data SummaryByAccountType = SummaryByAccountType
   { accountType :: AccountType
   , total :: TotalAmount
   , summaryBySubtypes :: [SummaryBySubtype]
   }
-  deriving (Generic, Show, ToJSON)
+  deriving (Eq, Generic, Show, ToJSON)
 
 data SummaryBySubtype = SummaryBySubtype
   { subtype :: Subtype
   , total :: TotalAmount
   }
-  deriving (Generic, Show, ToJSON)
+  deriving (Eq, Generic, Show, ToJSON)
