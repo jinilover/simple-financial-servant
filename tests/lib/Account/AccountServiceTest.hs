@@ -8,7 +8,6 @@ import Network.HTTP.Types
 
 import Hedgehog
 import qualified Hedgehog.Gen as Gen
-import qualified Hedgehog.Range as Range
 import Test.Tasty
 import Test.Tasty.Hedgehog
 
@@ -28,29 +27,50 @@ import Common.TestUtils
 test_accountSummary :: Property
 test_accountSummary = property 
   do
-    n <- forAll $ Gen.int (Range.linear 0 100)
-    n === n
+    userId <- genUserId
+    TestAccountSummary {..} <- forAll $ Gen.element testData
+    actual <- withKatipContext $
+                let accountService = mkAccountService (plaidClientStub $ Right mockPlaidData) tokenServiceForDummyToken
+                in  accountService.accountSummary userId
+    actual === expectedServiceResp
+  where
+    testData :: [TestAccountSummary]
+    testData = 
+      [ TestAccountSummary 
+          { purpose = "invalid account - available balance and current balance are empty"
+          , mockPlaidData = AccountListResponse 
+              { accounts = 
+                  [ PL.Account
+                      { account_id = PL.AccountId "001"
+                      , balances = PL.Balances 
+                          { available = Nothing
+                          , current = Nothing
+                          , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                          , limit = Nothing
+                          , unofficial_currency_code = Nothing
+                          }
+                      , mask = Nothing
+                      , name = PL.AccountName "001 Account"
+                      , official_name = Nothing
+                      , subtype = Nothing
+                      , account_type = AccountType "other"
+                      }
+                  ]
+              }
+          , expectedServiceResp = Left $ InvalidAccountData "Both available and current are empty"
+          }
+
+      ]
 
 test_accountSummary_accessNotFound :: Property
 test_accountSummary_accessNotFound = property 
   do
     userId <- genUserId
     actual <- withKatipContext $ 
-                let accountService = mkAccountService plaidClientNoop tokenServiceStub
+                let accountService = mkAccountService plaidClientNoop tokenServiceForTokenNotFound
                 in accountService.accountSummary userId
     let expected = Left . PlaidLinkingError . AccessTokenNotFound $ userId
     actual === expected
-  where
-    tokenServiceStub = TokenService
-      { exchangeToken = shouldNotBeCalled
-      , fetchAccessTokenData = pureLeft . AccessTokenNotFound
-      }
-
-    plaidClientNoop = PlaidClient 
-      { exchangeAccessToken = shouldNotBeCalled
-      , createPublicToken = shouldNotBeCalled
-      , getAccounts = shouldNotBeCalled
-      }
 
 test_accountSummary_plaidError :: Property
 test_accountSummary_plaidError = property
@@ -58,10 +78,11 @@ test_accountSummary_plaidError = property
     userId <- genUserId
     TestAccountSummaryPlaidError {..} <- forAll $ Gen.element testData
     actual <- withKatipContext $
-                let accountService = mkAccountService (plaidClientStub mockPlaidError) tokenServiceStub
+                let accountService = mkAccountService (plaidClientStub $ Left mockPlaidError) tokenServiceForDummyToken
                 in  accountService.accountSummary userId
     actual === Left expectedServiceError
   where
+    testData :: [TestAccountSummaryPlaidError]
     testData = 
       let plStructuredErrorResp = PL.StructuredResp PL.ErrorResponse 
             { display_message = Nothing
@@ -83,18 +104,39 @@ test_accountSummary_plaidError = property
             , (NetworkError "network-error", CommsError "network-error")
             , (ApiErrorResponse status400 plStructuredErrorResp, PlaidErrorResponse status400 structuredErrorResp)
             ]
-      in  [ uncurry TestAccountSummaryPlaidError . fmap PlaidClientError $ pair | pair <- dataPairs]
+      in  [ TestAccountSummaryPlaidError x (PlaidClientError y) | (x, y) <- dataPairs]
 
-    tokenServiceStub = TokenService
-      { exchangeToken = shouldNotBeCalled
-      , fetchAccessTokenData = const . pureRight . PLK.AccessToken $ "value-doesnt-matter"
-      }
+plaidClientNoop :: PlaidClient m
+plaidClientNoop = PlaidClient 
+  { exchangeAccessToken = shouldNotBeCalled
+  , createPublicToken = shouldNotBeCalled
+  , getAccounts = shouldNotBeCalled
+  }
 
-    plaidClientStub plaidError = PlaidClient 
-      { exchangeAccessToken = shouldNotBeCalled
-      , createPublicToken = shouldNotBeCalled
-      , getAccounts = const $ pureLeft plaidError
-      }
+plaidClientStub :: Applicative m =>
+  Either PlaidError AccountListResponse ->
+  PlaidClient m
+plaidClientStub mockData = plaidClientNoop 
+  { getAccounts = const . pure $ mockData
+  }
+
+tokenServiceNoop :: TokenService m
+tokenServiceNoop = TokenService
+  { exchangeToken = shouldNotBeCalled
+  , fetchAccessTokenData = shouldNotBeCalled
+  }
+
+tokenServiceForTokenNotFound :: Applicative m => 
+  TokenService m
+tokenServiceForTokenNotFound = tokenServiceNoop
+  { fetchAccessTokenData = pureLeft . AccessTokenNotFound
+  }
+
+tokenServiceForDummyToken :: Applicative m => 
+  TokenService m
+tokenServiceForDummyToken = tokenServiceNoop
+  { fetchAccessTokenData = const . pureRight . PLK.AccessToken $ "dummy-value"
+  }
 
 tests :: [TestTree]
 tests = 
