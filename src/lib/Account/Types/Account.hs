@@ -311,6 +311,7 @@ data AccountValidationError = AccountValidationError
   { accountId :: AccountId
   , errorMsg :: Text 
   }
+  deriving (Eq, Generic, ToJSON)
 
 instance Show AccountValidationError where
   show AccountValidationError {..} = toS accountId.unAccountId <> ": " <> toS errorMsg

@@ -1,12 +1,11 @@
 module Account.Types.AccountSummaryError where
 
-import Data.Text
-
+import Account.Types.Account
 import Common.Types
 import PlaidLinking.Types
 
 data AccountSummaryError = 
     PlaidClientError PlaidApiError
   | PlaidLinkingError AccessTokenNotFound
-  | InvalidAccountData Text
+  | InvalidAccountData { accountErrors :: [AccountValidationError] }
   deriving (Eq, Show)

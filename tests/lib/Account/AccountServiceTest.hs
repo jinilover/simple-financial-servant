@@ -12,7 +12,7 @@ import Test.Tasty
 import Test.Tasty.Hedgehog
 
 import Account.AccountService
-import Account.Types
+import Account.Types as ACC
 import Common.Utils
 import Common.Types as COMMON
 import PlaidLinking.TokenService 
@@ -55,9 +55,36 @@ test_accountSummary = property
                       , subtype = Nothing
                       , account_type = AccountType "other"
                       }
+                  , PL.Account
+                      { account_id = PL.AccountId "002"
+                      , balances = PL.Balances 
+                          { available = Nothing
+                          , current = Nothing
+                          , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                          , limit = Nothing
+                          , unofficial_currency_code = Nothing
+                          }
+                      , mask = Nothing
+                      , name = PL.AccountName "002 Account"
+                      , official_name = Nothing
+                      , subtype = Nothing
+                      , account_type = AccountType "otherXX"
+                      }
                   ]
               }
-          , expectedOutput = Left $ InvalidAccountData "001: Both available and current are empty"
+          , expectedOutput = Left $ InvalidAccountData 
+              { accountErrors = 
+                  [ AccountValidationError 
+                      { accountId = ACC.AccountId "001"
+                      , errorMsg = "Both available and current are empty" 
+                      }
+                  , AccountValidationError 
+                      { accountId = ACC.AccountId "002"
+                      , errorMsg = "Both available and current are empty, Unknown account type: otherXX" 
+                      }
+                  ]
+
+              }
           }
 
       ]

@@ -3,7 +3,7 @@
 module Account.Api where
 
 import Control.Monad.Error.Class
-import Data.String.Conv
+import Data.Aeson
 import Katip
 import Servant
 
@@ -27,8 +27,8 @@ accountSummary accountService userId = addNameSpace . addUserIdToContext userId 
         throwError $ toServerError apiError
       PlaidLinkingError accessTokenNotFound -> 
         throwError $ err400 { errReasonPhrase = show accessTokenNotFound }
-      InvalidAccountData errMsg ->
-        throwError $ err422 { errReasonPhrase = toS errMsg }
+      (InvalidAccountData accountValidationErros) ->
+        throwError $ err422 { errBody = encode accountValidationErros }
     )
     pure
 

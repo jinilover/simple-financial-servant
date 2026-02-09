@@ -45,8 +45,9 @@ mkAccountService plaidClient tokenService = AccountService
         Right accountResp -> 
           case traverse validatePLAccount . (.accounts) $ accountResp of
             Failure accountErrors -> 
-              let errMsg = intercalate "\n" . fmap (toS . show) . toList $ accountErrors
-              in  logFM ErrorS (logStr errMsg) $> (Left . InvalidAccountData) errMsg
+              let accountValidationErrors = toList accountErrors
+                  errMsg = intercalate "\n" . fmap (toS . show) $ accountValidationErrors
+              in  logFM ErrorS (logStr errMsg) $> (Left . InvalidAccountData) accountValidationErrors
             Success accounts -> pureRight accounts
 
     toAccountSummaryResponse :: [Account] -> AccountSummaryResponse
