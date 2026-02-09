@@ -185,17 +185,17 @@ validatePLAccount plAccount =
     validateAccountSubtypes accountType maybeSubtype = 
       case (accountType.unAccountType, (.unAccountSubtype) <$> maybeSubtype ) of 
         ("depository", Just subtype) -> (Depository, ) <$> validateDepositoryType subtype
-        ("depository", Nothing) -> V.Failure $ singleton "\"depository\" account type requires subtype"
+        ("depository", Nothing) -> V.Failure $ singleton "'depository' account type requires subtype"
         ("credit", Just subtype) -> (Credit, ) <$> validateCreditType subtype
-        ("credit", Nothing) -> V.Failure $ singleton "\"credit\" account type requires subtype"
+        ("credit", Nothing) -> V.Failure $ singleton "'credit' account type requires subtype"
         ("loan", Just subtype) -> (Loan, ) <$> validateLoanType subtype
-        ("loan", Nothing) -> V.Failure $ singleton "\"loan\" account type requires subtype"
+        ("loan", Nothing) -> V.Failure $ singleton "'loan' account type requires subtype"
         ("investment", Just subtype) -> (Investment, ) <$> validateInvestmentType subtype
-        ("investment", Nothing) -> V.Failure $ singleton "\"investment\" account type requires subtype"
+        ("investment", Nothing) -> V.Failure $ singleton "'investment' account type requires subtype"
         ("payroll", Just subtype) -> (Payroll, ) <$> validatePayrollType subtype
-        ("payroll", Nothing) -> V.Failure $ singleton "\"payroll\" account type requires subtype"
+        ("payroll", Nothing) -> V.Failure $ singleton "'payroll' account type requires subtype"
         ("other", Nothing) -> V.Success (OtherType, Subtype "Other or unknown account type")
-        ("other", _) -> V.Failure $ singleton "\"other\" account type has subtype value"
+        ("other", _) -> V.Failure $ singleton "'other' account type has subtype value"
         (unknownType, _) -> V.Failure . singleton $ "Unknown account type: " <> unknownType
 
     validateDepositoryType :: Text -> Validation (NonEmpty Text) Subtype
