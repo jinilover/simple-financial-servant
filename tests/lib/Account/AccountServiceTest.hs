@@ -20,74 +20,21 @@ import PlaidLinking.Types as PLK
 import Plaid.Client
 import Plaid.Types as PL
 
+import Account.TestData
 import Account.TestDataTypes
 import Common.Gen
+import Common.Stubs
 import Common.TestUtils
 
 test_accountSummary :: Property
 test_accountSummary = property 
   do
     userId <- genUserId
-    TestAccountSummary {..} <- forAll $ Gen.element testData
+    TestAccountSummary {..} <- forAll $ Gen.element testAccountSummaryData
     actual <- withKatipContext $
                 let accountService = mkAccountService (plaidClientStub $ Right mockPlaidData) tokenServiceForDummyToken
                 in  accountService.accountSummary userId
     actual === expectedOutput
-  where
-    testData :: [TestAccountSummary]
-    testData = 
-      [ TestAccountSummary 
-          { purpose = "invalid account - available balance and current balance are empty"
-          , mockPlaidData = AccountListResponse 
-              { accounts = 
-                  [ PL.Account
-                      { account_id = PL.AccountId "001"
-                      , balances = PL.Balances 
-                          { available = Nothing
-                          , current = Nothing
-                          , iso_currency_code = Just $ IsoCurrencyCode "USD"
-                          , limit = Nothing
-                          , unofficial_currency_code = Nothing
-                          }
-                      , mask = Nothing
-                      , name = PL.AccountName "001 Account"
-                      , official_name = Nothing
-                      , subtype = Nothing
-                      , account_type = AccountType "other"
-                      }
-                  , PL.Account
-                      { account_id = PL.AccountId "002"
-                      , balances = PL.Balances 
-                          { available = Nothing
-                          , current = Nothing
-                          , iso_currency_code = Just $ IsoCurrencyCode "USD"
-                          , limit = Nothing
-                          , unofficial_currency_code = Nothing
-                          }
-                      , mask = Nothing
-                      , name = PL.AccountName "002 Account"
-                      , official_name = Nothing
-                      , subtype = Nothing
-                      , account_type = AccountType "otherXX"
-                      }
-                  ]
-              }
-          , expectedOutput = Left $ InvalidAccountData 
-              { accountErrors = 
-                  [ AccountValidationError 
-                      { accountId = ACC.AccountId "001"
-                      , errorMsg = "Both available and current are empty" 
-                      }
-                  , AccountValidationError 
-                      { accountId = ACC.AccountId "002"
-                      , errorMsg = "Both available and current are empty, Unknown account type: otherXX" 
-                      }
-                  ]
-
-              }
-          }
-
-      ]
 
 test_accountSummary_accessNotFound :: Property
 test_accountSummary_accessNotFound = property 
@@ -133,24 +80,11 @@ test_accountSummary_plaidError = property
             ]
       in  [ TestAccountSummaryPlaidError plaidError (PlaidClientError expectedOutput) | (plaidError, expectedOutput) <- dataPairs]
 
-plaidClientNoop :: PlaidClient m
-plaidClientNoop = PlaidClient 
-  { exchangeAccessToken = shouldNotBeCalled
-  , createPublicToken = shouldNotBeCalled
-  , getAccounts = shouldNotBeCalled
-  }
-
 plaidClientStub :: Applicative m =>
   Either PlaidError AccountListResponse ->
   PlaidClient m
 plaidClientStub mockData = plaidClientNoop 
   { getAccounts = const . pure $ mockData
-  }
-
-tokenServiceNoop :: TokenService m
-tokenServiceNoop = TokenService
-  { exchangeToken = shouldNotBeCalled
-  , fetchAccessTokenData = shouldNotBeCalled
   }
 
 tokenServiceForTokenNotFound :: Applicative m => 

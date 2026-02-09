@@ -159,8 +159,10 @@ test-suite lib-test
     type:             exitcode-stdio-1.0
     main-is:          Test.hs
     other-modules:    Account.AccountServiceTest
+                    , Account.TestData
                     , Account.TestDataTypes
                     , Common.Gen
+                    , Common.Stubs
                     , Common.TestUtils
     hs-source-dirs:   tests/lib
     build-depends:    lib
