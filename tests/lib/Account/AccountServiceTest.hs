@@ -26,6 +26,13 @@ import Common.Gen
 import Common.Stubs
 import Common.TestUtils
 
+tests :: [TestTree]
+tests = 
+  [ testProperty "accountSummary" test_accountSummary
+  , testProperty "accountSummary_accessNotFound" test_accountSummary_accessNotFound
+  , testProperty "accountSummary_plaidError" test_accountSummary_plaidError
+  ]
+  
 test_accountSummary :: Property
 test_accountSummary = property 
   do
@@ -56,6 +63,7 @@ test_accountSummary_plaidError = property
                 in  accountService.accountSummary userId
     actual === Left expectedOutput
   where
+    -- TODO move to TestData
     testData :: [TestAccountSummaryPlaidError]
     testData = 
       let plStructuredErrorResp = PL.StructuredResp PL.ErrorResponse 
@@ -98,10 +106,3 @@ tokenServiceForDummyToken :: Applicative m =>
 tokenServiceForDummyToken = tokenServiceNoop
   { fetchAccessTokenData = const . pureRight . PLK.AccessToken $ "dummy-value"
   }
-
-tests :: [TestTree]
-tests = 
-  [ testProperty "accountSummary" test_accountSummary
-  , testProperty "accountSummary_accessNotFound" test_accountSummary_accessNotFound
-  , testProperty "accountSummary_plaidError" test_accountSummary_plaidError
-  ]
