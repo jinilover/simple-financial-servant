@@ -3,8 +3,10 @@
 module Account.Types.Account where
 
 import Data.Aeson
+import Data.Bifunctor
 import Data.Functor
 import Data.List.NonEmpty
+import Data.String.Conv
 import Data.Text hiding (singleton, elem)
 import Data.Validation as V
 import GHC.Generics
@@ -111,15 +113,17 @@ data UnofficialCode =
 instance ToJSON UnofficialCode where
   toJSON = genericToJSON defaultOptions
 
-validatePLAccount :: PL.Account -> Validation (NonEmpty Text) Account
+validatePLAccount :: PL.Account -> Validation (NonEmpty AccountValidationError) Account
 validatePLAccount plAccount = 
-  (Account (fromPLAccountId plAccount.account_id)
-    <$> validateBalances plAccount.balances
-    <*> pure (fromPLMask plAccount.mask)
-    <*> pure (fromName plAccount.name)
-    <*> pure (fromOfficialName plAccount.official_name)
-    <&> uncurry)
-    <*> validateAccountSubtypes plAccount.account_type plAccount.subtype
+  let accountId = fromPLAccountId plAccount.account_id
+      validatedAccount = (Account accountId
+        <$> validateBalances plAccount.balances
+        <*> pure (fromPLMask plAccount.mask)
+        <*> pure (fromName plAccount.name)
+        <*> pure (fromOfficialName plAccount.official_name)
+        <&> uncurry)
+        <*> validateAccountSubtypes plAccount.account_type plAccount.subtype
+  in  first (singleton . AccountValidationError accountId . intercalate ", " . toList) validatedAccount
   where
     validateBalances :: PL.Balances -> Validation (NonEmpty Text) Balances
     validateBalances balances = 
@@ -302,3 +306,11 @@ validatePLAccount plAccount =
       if t `elem` validSubtypes
         then V.Success $ Subtype t
         else V.Failure . singleton $ "Unknown " <> subtypeName <> " subtype: " <> t
+
+data AccountValidationError = AccountValidationError
+  { accountId :: AccountId
+  , errorMsg :: Text 
+  }
+
+instance Show AccountValidationError where
+  show AccountValidationError {..} = toS accountId.unAccountId <> ": " <> toS errorMsg

@@ -32,7 +32,7 @@ test_accountSummary = property
     actual <- withKatipContext $
                 let accountService = mkAccountService (plaidClientStub $ Right mockPlaidData) tokenServiceForDummyToken
                 in  accountService.accountSummary userId
-    actual === expectedServiceResp
+    actual === expectedOutput
   where
     testData :: [TestAccountSummary]
     testData = 
@@ -57,7 +57,7 @@ test_accountSummary = property
                       }
                   ]
               }
-          , expectedServiceResp = Left $ InvalidAccountData "Both available and current are empty"
+          , expectedOutput = Left $ InvalidAccountData "001: Both available and current are empty"
           }
 
       ]
@@ -80,7 +80,7 @@ test_accountSummary_plaidError = property
     actual <- withKatipContext $
                 let accountService = mkAccountService (plaidClientStub $ Left mockPlaidError) tokenServiceForDummyToken
                 in  accountService.accountSummary userId
-    actual === Left expectedServiceError
+    actual === Left expectedOutput
   where
     testData :: [TestAccountSummaryPlaidError]
     testData = 
@@ -104,7 +104,7 @@ test_accountSummary_plaidError = property
             , (NetworkError "network-error", CommsError "network-error")
             , (ApiErrorResponse status400 plStructuredErrorResp, PlaidErrorResponse status400 structuredErrorResp)
             ]
-      in  [ TestAccountSummaryPlaidError x (PlaidClientError y) | (x, y) <- dataPairs]
+      in  [ TestAccountSummaryPlaidError plaidError (PlaidClientError expectedOutput) | (plaidError, expectedOutput) <- dataPairs]
 
 plaidClientNoop :: PlaidClient m
 plaidClientNoop = PlaidClient 

@@ -7,13 +7,13 @@ import Plaid.Types
 
 data TestAccountSummaryPlaidError = TestAccountSummaryPlaidError
   { mockPlaidError :: PlaidError
-  , expectedServiceError :: AccountSummaryError
+  , expectedOutput :: AccountSummaryError
   }
   deriving Show
 
 data TestAccountSummary = TestAccountSummary
   { purpose :: Text
   , mockPlaidData :: AccountListResponse
-  , expectedServiceResp :: Either AccountSummaryError AccountSummaryResponse
+  , expectedOutput :: Either AccountSummaryError AccountSummaryResponse
   }
   deriving Show

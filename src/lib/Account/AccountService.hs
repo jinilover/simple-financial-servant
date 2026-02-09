@@ -6,6 +6,7 @@ import Data.Functor
 import Data.List.NonEmpty
 import qualified Data.Map as M
 import Data.Maybe
+import Data.String.Conv
 import Data.Text
 import Data.Validation
 import Katip
@@ -43,8 +44,8 @@ mkAccountService plaidClient tokenService = AccountService
         Left plaidError -> logFM ErrorS (logStr $ show plaidError) $> (Left . PlaidClientError . fromPlaidError) plaidError
         Right accountResp -> 
           case traverse validatePLAccount . (.accounts) $ accountResp of
-            Failure texts -> 
-              let errMsg = intercalate ", " $ toList texts
+            Failure accountErrors -> 
+              let errMsg = intercalate "\n" . fmap (toS . show) . toList $ accountErrors
               in  logFM ErrorS (logStr errMsg) $> (Left . InvalidAccountData) errMsg
             Success accounts -> pureRight accounts
 
