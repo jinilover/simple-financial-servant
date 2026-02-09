@@ -122,14 +122,14 @@ validatePLAccount plAccount =
         <*> pure (fromName plAccount.name)
         <*> pure (fromOfficialName plAccount.official_name)
         <&> uncurry)
-        <*> validateAccountSubtypes plAccount.account_type plAccount.subtype
+        <*> validateAccountTypeSubtype plAccount.account_type plAccount.subtype
   in  first (singleton . AccountValidationError accountId . intercalate ", " . toList) validatedAccount
   where
     validateBalances :: PL.Balances -> Validation (NonEmpty Text) Balances
     validateBalances balances = 
       uncurry Balances
         <$> validateAvailableCurrent balances.available balances.current
-        <*> validateCurrencyCode balances.iso_currency_code balances.unofficial_currency_code
+        <*> validateCurrencyCodes balances.iso_currency_code balances.unofficial_currency_code
 
     validateAvailableCurrent :: Maybe PL.AvailableBalance -> Maybe PL.CurrentBalance -> Validation (NonEmpty Text) (Maybe AvailableBalance, Maybe CurrentBalance)
     validateAvailableCurrent Nothing Nothing = V.Failure $ singleton "Both available and current are empty"
@@ -139,8 +139,8 @@ validatePLAccount plAccount =
 
     fromPLCurrentBalance = CurrentBalance . (.unCurrentBalance)
 
-    validateCurrencyCode :: Maybe PL.IsoCurrencyCode -> Maybe PL.UnofficialCurrencyCode -> Validation (NonEmpty Text) CurrencyCode
-    validateCurrencyCode maybeIsoCurrCode maybeUnofficialCurrCode = 
+    validateCurrencyCodes :: Maybe PL.IsoCurrencyCode -> Maybe PL.UnofficialCurrencyCode -> Validation (NonEmpty Text) CurrencyCode
+    validateCurrencyCodes maybeIsoCurrCode maybeUnofficialCurrCode = 
       case ((.unIsoCurrencyCode) <$> maybeIsoCurrCode, (.unUnofficialCurrencyCode) <$> maybeUnofficialCurrCode) of
         (Just _, Just _) -> V.Failure $ singleton "Both iso_currency_code and unofficial_currency_code have value"
         (Nothing, Nothing) -> V.Failure $ singleton "Both iso_currency_code and unofficial_currency_code are empty"
@@ -181,21 +181,21 @@ validatePLAccount plAccount =
 
     fromOfficialName = fmap (OfficialName . (.unOfficialName))
 
-    validateAccountSubtypes :: PL.AccountType -> Maybe PL.AccountSubtype -> Validation (NonEmpty Text) (AccountType, Subtype)
-    validateAccountSubtypes accountType maybeSubtype = 
+    validateAccountTypeSubtype :: PL.AccountType -> Maybe PL.AccountSubtype -> Validation (NonEmpty Text) (AccountType, Subtype)
+    validateAccountTypeSubtype accountType maybeSubtype = 
       case (accountType.unAccountType, (.unAccountSubtype) <$> maybeSubtype ) of 
         ("depository", Just subtype) -> (Depository, ) <$> validateDepositoryType subtype
-        ("depository", Nothing) -> V.Failure $ singleton "'depository' account type requires subtype"
+        ("depository", Nothing) -> V.Failure $ singleton "depository account type requires subtype"
         ("credit", Just subtype) -> (Credit, ) <$> validateCreditType subtype
-        ("credit", Nothing) -> V.Failure $ singleton "'credit' account type requires subtype"
+        ("credit", Nothing) -> V.Failure $ singleton "credit account type requires subtype"
         ("loan", Just subtype) -> (Loan, ) <$> validateLoanType subtype
-        ("loan", Nothing) -> V.Failure $ singleton "'loan' account type requires subtype"
+        ("loan", Nothing) -> V.Failure $ singleton "loan account type requires subtype"
         ("investment", Just subtype) -> (Investment, ) <$> validateInvestmentType subtype
-        ("investment", Nothing) -> V.Failure $ singleton "'investment' account type requires subtype"
+        ("investment", Nothing) -> V.Failure $ singleton "investment account type requires subtype"
         ("payroll", Just subtype) -> (Payroll, ) <$> validatePayrollType subtype
-        ("payroll", Nothing) -> V.Failure $ singleton "'payroll' account type requires subtype"
+        ("payroll", Nothing) -> V.Failure $ singleton "payroll account type requires subtype"
         ("other", Nothing) -> V.Success (OtherType, Subtype "Other or unknown account type")
-        ("other", _) -> V.Failure $ singleton "'other' account type has subtype value"
+        ("other", _) -> V.Failure $ singleton "other account type has subtype value"
         (unknownType, _) -> V.Failure . singleton $ "Unknown account type: " <> unknownType
 
     validateDepositoryType :: Text -> Validation (NonEmpty Text) Subtype

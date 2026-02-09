@@ -136,7 +136,7 @@ testAccountSummaryData =
               }
           }
       , TestAccountSummary 
-          { purpose = "'other' account type has subtype "
+          { purpose = "other account type has subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -160,13 +160,13 @@ testAccountSummaryData =
               { accountErrors = 
                   [ AccountValidationError 
                       { accountId = ACC.AccountId "001"
-                      , errorMsg = "'other' account type has subtype value"
+                      , errorMsg = "other account type has subtype value"
                       }
                   ]
               }
           }
       , TestAccountSummary 
-          { purpose = "'depository' account type has no subtype "
+          { purpose = "depository account type has no subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -190,14 +190,14 @@ testAccountSummaryData =
               { accountErrors = 
                   [ AccountValidationError 
                       { accountId = ACC.AccountId "001"
-                      , errorMsg = "'depository' account type requires subtype"
+                      , errorMsg = "depository account type requires subtype"
                       }
                   ]
 
               }
           }
       , TestAccountSummary 
-          { purpose = "'credit' account type has no subtype "
+          { purpose = "credit account type has no subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -221,14 +221,14 @@ testAccountSummaryData =
               { accountErrors = 
                   [ AccountValidationError 
                       { accountId = ACC.AccountId "001"
-                      , errorMsg = "'credit' account type requires subtype"
+                      , errorMsg = "credit account type requires subtype"
                       }
                   ]
 
               }
           }
       , TestAccountSummary 
-          { purpose = "'loan' account type has no subtype "
+          { purpose = "loan account type has no subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -252,14 +252,14 @@ testAccountSummaryData =
               { accountErrors = 
                   [ AccountValidationError 
                       { accountId = ACC.AccountId "001"
-                      , errorMsg = "'loan' account type requires subtype"
+                      , errorMsg = "loan account type requires subtype"
                       }
                   ]
 
               }
           }
       , TestAccountSummary 
-          { purpose = "'investment' account type has no subtype "
+          { purpose = "investment account type has no subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -283,14 +283,14 @@ testAccountSummaryData =
               { accountErrors = 
                   [ AccountValidationError 
                       { accountId = ACC.AccountId "001"
-                      , errorMsg = "'investment' account type requires subtype"
+                      , errorMsg = "investment account type requires subtype"
                       }
                   ]
 
               }
           }
       , TestAccountSummary 
-          { purpose = "'payroll' account type has no subtype "
+          { purpose = "payroll account type has no subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -314,14 +314,14 @@ testAccountSummaryData =
               { accountErrors = 
                   [ AccountValidationError 
                       { accountId = ACC.AccountId "001"
-                      , errorMsg = "'payroll' account type requires subtype"
+                      , errorMsg = "payroll account type requires subtype"
                       }
                   ]
 
               }
           }
       , TestAccountSummary 
-          { purpose = "'depository' account type has invalid subtype "
+          { purpose = "depository account type has invalid subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -352,7 +352,7 @@ testAccountSummaryData =
               }
           }
       , TestAccountSummary 
-          { purpose = "'credit' account type has invalid subtype "
+          { purpose = "credit account type has invalid subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -383,7 +383,7 @@ testAccountSummaryData =
               }
           }
       , TestAccountSummary 
-          { purpose = "'loan' account type has invalid subtype "
+          { purpose = "loan account type has invalid subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -414,7 +414,7 @@ testAccountSummaryData =
               }
           }
       , TestAccountSummary 
-          { purpose = "'investment' account type has invalid subtype "
+          { purpose = "investment account type has invalid subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -445,7 +445,7 @@ testAccountSummaryData =
               }
           }
       , TestAccountSummary 
-          { purpose = "'payroll' account type has invalid subtype "
+          { purpose = "payroll account type has invalid subtype "
           , mockPlaidData = AccountListResponse 
               { accounts = 
                   [ PL.Account
@@ -611,7 +611,7 @@ testAccountSummaryData =
                       , errorMsg = 
                           "Both available and current are empty, " <>
                           "Both iso_currency_code and unofficial_currency_code are empty, " <>
-                          "'other' account type has subtype value"
+                          "other account type has subtype value"
                       }
                   ,  AccountValidationError 
                       { accountId = ACC.AccountId "002"
