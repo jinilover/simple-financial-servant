@@ -14,7 +14,7 @@ testAccountSummaryData =
   single_account_multiple_errors_test_data ++
   multiple_account_single_error_test_data ++
   multiple_accounts_multiple_errors_test_data ++
-  [account_summary_data]
+  account_summary_data
   where
     single_account_single_error_test_data = 
       [ TestAccountSummary 
@@ -633,6 +633,21 @@ testAccountSummaryData =
           mockPlaidData = AccountListResponse
             { accounts = 
                 [ PL.Account
+                    { account_id = PL.AccountId "4Nl9Jljp7WTErX6NReymuj969XvWDoflPva02"
+                    , balances = PL.Balances 
+                        { available = Just $ PL.AvailableBalance 0.1
+                        , current = Just $ PL.CurrentBalance 110
+                        , iso_currency_code = Nothing
+                        , limit = Nothing
+                        , unofficial_currency_code = Just $ UnofficialCurrencyCode "ETH"
+                        }
+                    , mask = Just $ PL.Mask "0000"
+                    , name = PL.AccountName "Plaid non-custodial wallet"
+                    , official_name = Just $ PL.OfficialName "Plaid non-custodial wallet"
+                    , subtype = Just $ AccountSubtype "non-custodial wallet"
+                    , account_type = AccountType "investment"
+                    }
+                , PL.Account
                     { account_id = PL.AccountId "4Nl9Jljp7WTErX6NReymuj969XvWDoflPvaLB"
                     , balances = PL.Balances 
                         { available = Just $ PL.AvailableBalance 100
@@ -661,6 +676,21 @@ testAccountSummaryData =
                     , official_name = Just $ PL.OfficialName "Plaid Saving Maximiser Standard 0.1% Interest Saving"
                     , subtype = Just $ AccountSubtype "savings"
                     , account_type = AccountType "depository"
+                    }
+                , PL.Account
+                    { account_id = PL.AccountId "4Nl9Jljp7WTErX6NReymuj969XvWDoflPva03"
+                    , balances = PL.Balances 
+                        { available = Just $ PL.AvailableBalance 1
+                        , current = Just $ PL.CurrentBalance 110
+                        , iso_currency_code = Nothing
+                        , limit = Nothing
+                        , unofficial_currency_code = Just $ UnofficialCurrencyCode "ETH"
+                        }
+                    , mask = Just $ PL.Mask "0000"
+                    , name = PL.AccountName "Plaid non-custodial wallet"
+                    , official_name = Just $ PL.OfficialName "Plaid crypto exchange"
+                    , subtype = Just $ AccountSubtype "crypto exchange"
+                    , account_type = AccountType "investment"
                     }
                 , PL.Account
                     { account_id = PL.AccountId "NvWorWbMzZT5ebLPDG87crmbmXp5QWiXwGMQg"
@@ -813,6 +843,21 @@ testAccountSummaryData =
                     , account_type = AccountType "investment"
                     }
                 , PL.Account
+                    { account_id = PL.AccountId "4Nl9Jljp7WTErX6NReymuj969XvWDoflPva05"
+                    , balances = PL.Balances 
+                        { available = Just $ PL.AvailableBalance 5000
+                        , current = Just $ PL.CurrentBalance 110
+                        , iso_currency_code = Nothing
+                        , limit = Nothing
+                        , unofficial_currency_code = Just $ UnofficialCurrencyCode "ADA"
+                        }
+                    , mask = Just $ PL.Mask "0000"
+                    , name = PL.AccountName "Plaid crypto exchange"
+                    , official_name = Just $ PL.OfficialName "Plaid crypto exchange"
+                    , subtype = Just $ AccountSubtype "crypto exchange"
+                    , account_type = AccountType "investment"
+                    }
+                , PL.Account
                     { account_id = PL.AccountId "pNG1WGplKQTzG8M3K1Bli7vDvqVLo1SJdv5zM"
                     , balances = PL.Balances 
                         { available = Just $ PL.AvailableBalance 4980
@@ -856,6 +901,21 @@ testAccountSummaryData =
                     , official_name = Just $ PL.OfficialName "Plaid Saving Accelerator Standard 0.1% Interest Saving"
                     , subtype = Just $ AccountSubtype "savings"
                     , account_type = AccountType "depository"
+                    }
+                , PL.Account
+                    { account_id = PL.AccountId "4Nl9Jljp7WTErX6NReymuj969XvWDoflPva04"
+                    , balances = PL.Balances 
+                        { available = Just $ PL.AvailableBalance 10000
+                        , current = Just $ PL.CurrentBalance 110
+                        , iso_currency_code = Nothing
+                        , limit = Nothing
+                        , unofficial_currency_code = Just $ UnofficialCurrencyCode "ADA"
+                        }
+                    , mask = Just $ PL.Mask "0000"
+                    , name = PL.AccountName "Plaid crypto exchange"
+                    , official_name = Just $ PL.OfficialName "Plaid crypto exchange"
+                    , subtype = Just $ AccountSubtype "crypto exchange"
+                    , account_type = AccountType "investment"
                     }
                 ]
             }
@@ -956,8 +1016,44 @@ testAccountSummaryData =
                 , currency = Iso "USD"
                 , total = ACC.AvailableBalance 51560
                 }
+            , SummaryByCurrency 
+                { summaryByAccountTypes = 
+                    [ SummaryByAccountType
+                        { accountType = Investment
+                        , total = ACC.AvailableBalance 15000
+                        , summaryBySubtypes = 
+                            [ SummaryBySubtype
+                                { subtype = Subtype "crypto exchange"
+                                , total = ACC.AvailableBalance 15000
+                                }
+                            ]
+                        }
+                    ]
+                , currency = Unofficial ADA
+                , total = ACC.AvailableBalance 15000
+                }
+            , SummaryByCurrency 
+                { summaryByAccountTypes = 
+                    [ SummaryByAccountType
+                        { accountType = Investment
+                        , total = ACC.AvailableBalance 1.1
+                        , summaryBySubtypes = 
+                            [ SummaryBySubtype
+                                { subtype = Subtype "crypto exchange"
+                                , total = ACC.AvailableBalance 1
+                                }
+                            , SummaryBySubtype
+                                { subtype = Subtype "non-custodial wallet"
+                                , total = ACC.AvailableBalance 0.1
+                                }
+                            ]
+                        }
+                    ]
+                , currency = Unofficial ETH
+                , total = ACC.AvailableBalance 1.1
+                }
             ]
-      in  TestAccountSummary {..}
+      in  [ TestAccountSummary {..} ]
 
 testAccountSummaryPlaidErrorData :: [TestAccountSummaryPlaidError]
 testAccountSummaryPlaidErrorData = 
