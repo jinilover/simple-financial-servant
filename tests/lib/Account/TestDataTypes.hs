@@ -14,6 +14,6 @@ data TestAccountSummaryPlaidError = TestAccountSummaryPlaidError
 data TestAccountSummary = TestAccountSummary
   { purpose :: Text
   , mockPlaidData :: AccountListResponse
-  , expectedOutput :: Either AccountSummaryError AccountSummaryResponse
+  , expectedOutput :: Either AccountSummaryError [SummaryByCurrency]
   }
   deriving Show

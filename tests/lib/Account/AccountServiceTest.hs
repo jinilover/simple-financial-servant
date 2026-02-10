@@ -4,6 +4,8 @@ module Account.AccountServiceTest
   )
 where
 
+import Control.Monad.IO.Class
+import Katip
 import Network.HTTP.Types
 
 import Hedgehog
@@ -38,18 +40,15 @@ test_accountSummary = property
   do
     userId <- genUserId
     TestAccountSummary {..} <- forAll $ Gen.element testAccountSummaryData
-    actual <- withKatipContext $
-                let accountService = mkAccountService (plaidClientStub $ Right mockPlaidData) tokenServiceForDummyToken
-                in  accountService.accountSummary userId
+    resp <- callForAccountSummary userId (plaidClientStub $ Right mockPlaidData) tokenServiceForDummyToken
+    let actual = (.summaryByCurrencies) <$> resp
     actual === expectedOutput
 
 test_accountSummary_accessNotFound :: Property
 test_accountSummary_accessNotFound = property 
   do
     userId <- genUserId
-    actual <- withKatipContext $ 
-                let accountService = mkAccountService plaidClientNoop tokenServiceForTokenNotFound
-                in accountService.accountSummary userId
+    actual <- callForAccountSummary userId plaidClientNoop tokenServiceForTokenNotFound
     let expected = Left . PlaidLinkingError . AccessTokenNotFound $ userId
     actual === expected
 
@@ -58,9 +57,7 @@ test_accountSummary_plaidError = property
   do
     userId <- genUserId
     TestAccountSummaryPlaidError {..} <- forAll $ Gen.element testData
-    actual <- withKatipContext $
-                let accountService = mkAccountService (plaidClientStub $ Left mockPlaidError) tokenServiceForDummyToken
-                in  accountService.accountSummary userId
+    actual <- callForAccountSummary userId (plaidClientStub $ Left mockPlaidError) tokenServiceForDummyToken
     actual === Left expectedOutput
   where
     -- TODO move to TestData
@@ -87,6 +84,17 @@ test_accountSummary_plaidError = property
             , (ApiErrorResponse status400 plStructuredErrorResp, PlaidErrorResponse status400 structuredErrorResp)
             ]
       in  [ TestAccountSummaryPlaidError plaidError (PlaidClientError expectedOutput) | (plaidError, expectedOutput) <- dataPairs]
+
+callForAccountSummary :: 
+  MonadIO m => 
+  UserId -> 
+  PlaidClient (KatipContextT m) -> 
+  TokenService (KatipContextT m) -> 
+  m (Either AccountSummaryError AccountSummaryResponse) 
+callForAccountSummary userId plaidClient tokenService = 
+  withKatipContext $
+    let accountService = mkAccountService plaidClient tokenService
+    in  accountService.accountSummary userId
 
 plaidClientStub :: Applicative m =>
   Either PlaidError AccountListResponse ->

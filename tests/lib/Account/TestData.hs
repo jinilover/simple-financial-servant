@@ -10,7 +10,8 @@ testAccountSummaryData =
   single_account_single_error_test_data ++
   single_account_multiple_errors_test_data ++
   multiple_account_single_error_test_data ++
-  multiple_accounts_multiple_errors_test_data
+  multiple_accounts_multiple_errors_test_data ++
+  account_summary_data
   where
     single_account_single_error_test_data = 
       [ TestAccountSummary 
@@ -624,3 +625,269 @@ testAccountSummaryData =
               }
           }
       ]
+
+    account_summary_data = 
+      let accounts = 
+            [ PL.Account
+                { account_id = PL.AccountId "4Nl9Jljp7WTErX6NReymuj969XvWDoflPvaLB"
+                , balances = PL.Balances 
+                    { available = Just $ PL.AvailableBalance 100
+                    , current = Just $ PL.CurrentBalance 110
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "0000"
+                , name = PL.AccountName "Plaid Checking"
+                , official_name = Just $ PL.OfficialName "Plaid Gold Standard 0% Interest Checking"
+                , subtype = Just $ AccountSubtype "checking"
+                , account_type = AccountType "depository"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "NvWorWbMzZT5ebLPDG87crmbmXp5QWiXwGMQg"
+                , balances = PL.Balances 
+                    { available = Just $ PL.AvailableBalance 200
+                    , current = Just $ PL.CurrentBalance 210
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "1111"
+                , name = PL.AccountName "Plaid Saving"
+                , official_name = Just $ PL.OfficialName "Plaid Silver Standard 0.1% Interest Saving"
+                , subtype = Just $ AccountSubtype "savings"
+                , account_type = AccountType "depository"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "PvG8BGXj31T5oydMD1LjczG4GXp5EMuXRezAr"
+                , balances = PL.Balances 
+                    { available = Nothing
+                    , current = Just $ PL.CurrentBalance 1000
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "2222"
+                , name = PL.AccountName "Plaid CD"
+                , official_name = Just $ PL.OfficialName "Plaid Bronze Standard 0.2% Interest CD"
+                , subtype = Just $ AccountSubtype "cd"
+                , account_type = AccountType "depository"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "jBoj8oXky4UAGvxD4rRZtdqvqjAmo1Fve7Jaq"
+                , balances = PL.Balances 
+                    { available = Nothing
+                    , current = Just $ PL.CurrentBalance 410
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "3333"
+                , name = PL.AccountName "Plaid Credit Card"
+                , official_name = Just $ PL.OfficialName "Plaid Diamond 12.5% APR Interest Credit Card"
+                , subtype = Just $ AccountSubtype "credit card"
+                , account_type = AccountType "credit"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "77r69r3LZnCEl4P7kz61uV5d5XB86Ef8q5Xxn"
+                , balances = PL.Balances 
+                    { available = Just $ PL.AvailableBalance 43200
+                    , current = Just $ PL.CurrentBalance 43200
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "4444"
+                , name = PL.AccountName "Plaid Money Market"
+                , official_name = Just $ PL.OfficialName "Plaid Platinum Standard 1.85% Interest Money Market"
+                , subtype = Just $ AccountSubtype "money market"
+                , account_type = AccountType "depository"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "elZdmZQyABsjrVMdB67LFQNxNl5q9eHaGbWmk"
+                , balances = PL.Balances 
+                    { available = Nothing
+                    , current = Just $ PL.CurrentBalance 320.76
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "5555"
+                , name = PL.AccountName "Plaid IRA"
+                , official_name = Nothing
+                , subtype = Just $ AccountSubtype "ira"
+                , account_type = AccountType "investment"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "QwnE3ng7xLC57XEALbPzcREXENxDQLCGVgKDD"
+                , balances = PL.Balances 
+                    { available = Nothing
+                    , current = Just $ PL.CurrentBalance 23631.9805
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "6666"
+                , name = PL.AccountName "Plaid 401k"
+                , official_name = Nothing
+                , subtype = Just $ AccountSubtype "401k"
+                , account_type = AccountType "investment"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "ZX3vm3DpQnUKzVaAdrxLCqlml9zpyQsJBE7G1"
+                , balances = PL.Balances 
+                    { available = Nothing
+                    , current = Just $ PL.CurrentBalance 65262
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "7777"
+                , name = PL.AccountName "Plaid Student Loan"
+                , official_name = Nothing
+                , subtype = Just $ AccountSubtype "student"
+                , account_type = AccountType "loan"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "MvkpKkGRrQT57w4NAdg1cnbMb4p8eBC4rWQ1X"
+                , balances = PL.Balances 
+                    { available = Nothing
+                    , current = Just $ PL.CurrentBalance 56302.06
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "8888"
+                , name = PL.AccountName "Plaid Mortgage"
+                , official_name = Nothing
+                , subtype = Just $ AccountSubtype "mortgage"
+                , account_type = AccountType "loan"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "1dnb9n3LNgUqrzMXR3j1iKlzl6Wg9qCq1kMrX"
+                , balances = PL.Balances 
+                    { available = Just $ PL.AvailableBalance 6009
+                    , current = Just $ PL.CurrentBalance 6009
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "9001"
+                , name = PL.AccountName "Plaid HSA"
+                , official_name = Just $ PL.OfficialName "Plaid Cares Health Savings Account"
+                , subtype = Just $ AccountSubtype "hsa"
+                , account_type = AccountType "depository"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "Lv8Lq8yQKeT5yGNMkapVcv3q3eKgWVie5xNEj"
+                , balances = PL.Balances 
+                    { available = Just $ PL.AvailableBalance 12060
+                    , current = Just $ PL.CurrentBalance 12060
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "9002"
+                , name = PL.AccountName "Plaid Cash Management"
+                , official_name = Just $ PL.OfficialName "Plaid Growth Cash Management"
+                , subtype = Just $ AccountSubtype "cash management"
+                , account_type = AccountType "depository"
+                }
+            , PL.Account
+                { account_id = PL.AccountId "pNG1WGplKQTzG8M3K1Bli7vDvqVLo1SJdv5zM"
+                , balances = PL.Balances 
+                    { available = Just $ PL.AvailableBalance 4980
+                    , current = Just $ PL.CurrentBalance 5020
+                    , iso_currency_code = Just $ IsoCurrencyCode "USD"
+                    , limit = Nothing
+                    , unofficial_currency_code = Nothing
+                    }
+                , mask = Just $ PL.Mask "9999"
+                , name = PL.AccountName "Plaid Business Credit Card"
+                , official_name = Just $ PL.OfficialName "Plaid Platinum Small Business Credit Card"
+                , subtype = Just $ AccountSubtype "credit card"
+                , account_type = AccountType "credit"
+                }
+            ]
+      in  [ TestAccountSummary
+            { purpose = "Accounts are all valid, check if summary is calculated correctly in ascending order"
+            , mockPlaidData = AccountListResponse
+                { accounts = accounts}
+            , expectedOutput = Right 
+                [ SummaryByCurrency 
+                    { summaryByAccountTypes = 
+                        [  SummaryByAccountType
+                            { accountType = Credit
+                            , total = ACC.AvailableBalance 4980
+                            , summaryBySubtypes = 
+                                [ SummaryBySubtype
+                                    { subtype = Subtype "credit card"
+                                    , total = ACC.AvailableBalance 4980
+                                    }
+                                ]
+                            }
+                        , SummaryByAccountType
+                            { accountType = Depository
+                            , total = ACC.AvailableBalance 61569
+                            , summaryBySubtypes = 
+                                [ SummaryBySubtype
+                                    { subtype = Subtype "cash management"
+                                    , total = ACC.AvailableBalance 12060
+                                    }
+                                , SummaryBySubtype
+                                    { subtype = Subtype "cd"
+                                    , total = ACC.AvailableBalance 0
+                                    }
+                                , SummaryBySubtype
+                                    { subtype = Subtype "checking"
+                                    , total = ACC.AvailableBalance 100
+                                    }
+                                , SummaryBySubtype
+                                    { subtype = Subtype "hsa"
+                                    , total = ACC.AvailableBalance 6009
+                                    }
+                                , SummaryBySubtype
+                                    { subtype = Subtype "money market"
+                                    , total = ACC.AvailableBalance 43200
+                                    }
+                                , SummaryBySubtype
+                                    { subtype = Subtype "savings"
+                                    , total = ACC.AvailableBalance 200
+                                    }
+                                ]
+                            }
+                        , SummaryByAccountType
+                            { accountType = Investment
+                            , total = ACC.AvailableBalance 0
+                            , summaryBySubtypes = 
+                                [ SummaryBySubtype
+                                    { subtype = Subtype "401k"
+                                    , total = ACC.AvailableBalance 0
+                                    }
+                                , SummaryBySubtype
+                                    { subtype = Subtype "ira"
+                                    , total = ACC.AvailableBalance 0
+                                    }
+                                ]
+                            }
+                        , SummaryByAccountType
+                            { accountType = Loan
+                            , total = ACC.AvailableBalance 0
+                            , summaryBySubtypes = 
+                                [ SummaryBySubtype
+                                    { subtype = Subtype "mortgage"
+                                    , total = ACC.AvailableBalance 0
+                                    }
+                                , SummaryBySubtype
+                                    { subtype = Subtype "student"
+                                    , total = ACC.AvailableBalance 0
+                                    }
+                                ]
+                            }
+                        ]
+                    , currency = Iso "USD"
+                    , total = ACC.AvailableBalance 66549
+                    }
+                ]
+            }
+          ]
