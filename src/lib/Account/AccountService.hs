@@ -3,12 +3,13 @@ module Account.AccountService where
 
 import Control.Monad.Except
 import Data.Functor
-import Data.List.NonEmpty
+import Data.List.NonEmpty hiding (length, sortWith)
 import qualified Data.Map as M
 import Data.Maybe
 import Data.String.Conv
-import Data.Text
+import Data.Text hiding (length)
 import Data.Validation
+import GHC.Exts hiding (toList)
 import Katip
 
 import Account.Types
@@ -41,14 +42,19 @@ mkAccountService plaidClient tokenService = AccountService
     
     callForAccounts accessToken = 
       (plaidClient.getAccounts . PL.AccessToken . (.unAccessToken) $ accessToken) >>= \case 
-        Left plaidError -> logFM ErrorS (logStr $ show plaidError) $> (Left . PlaidClientError . fromPlaidError) plaidError
-        Right accountResp -> 
-          case traverse validatePLAccount . (.accounts) $ accountResp of
-            Failure accountErrors -> 
-              let accountValidationErrors = toList accountErrors
+        Left plaidError -> 
+          logFM ErrorS (logStr $ show plaidError) $> 
+          (Left . PlaidClientError . fromPlaidError) plaidError
+        Right PL.AccountListResponse {..} -> 
+          let infoMsg = "Received " <> show (length accounts) <> " accounts from plaid, validating and producing summary"
+          in  logFM InfoS (logStr infoMsg) *>
+          case traverse validatePLAccount accounts of
+            Failure validationErrors -> 
+              let accountValidationErrors = toList validationErrors
                   errMsg = intercalate "\n" . fmap (toS . show) $ accountValidationErrors
-              in  logFM ErrorS (logStr errMsg) $> (Left . InvalidAccountData) accountValidationErrors
-            Success accounts -> pureRight accounts
+              in  logFM ErrorS (logStr errMsg) $> 
+                  (Left . InvalidAccountData) accountValidationErrors
+            Success validatedAccounts -> pureRight validatedAccounts
 
     toAccountSummaryResponse :: [Account] -> AccountSummaryResponse
     toAccountSummaryResponse accounts = 
@@ -58,7 +64,8 @@ mkAccountService plaidClient tokenService = AccountService
     groupByCurrency :: [Account] -> [SummaryByCurrency]
     groupByCurrency accounts = 
       let currencyAccountsMap = groupByKey (.balances.currencyCode) accounts
-      in  fmap (\(currency, summaryByAccountTypes) ->
+      in  sortWith (.currency) .
+          fmap (\(currency, summaryByAccountTypes) ->
             let total = sumTotalBalance . fmap (.total) $ summaryByAccountTypes
             in  SummaryByCurrency {..}
           ) .
@@ -69,7 +76,8 @@ mkAccountService plaidClient tokenService = AccountService
     groupByAccountType :: [Account] -> [SummaryByAccountType]
     groupByAccountType accounts = 
       let typeAccountsMap = groupByKey (.accountType) accounts
-      in  fmap (\(accountType, summaryBySubtypes) ->
+      in  sortWith (.accountType) .
+          fmap (\(accountType, summaryBySubtypes) ->
             let total = sumTotalBalance . fmap (.total) $ summaryBySubtypes
             in  SummaryByAccountType {..}
           ) . 
@@ -80,7 +88,8 @@ mkAccountService plaidClient tokenService = AccountService
     groupBySubtype :: [Account] -> [SummaryBySubtype]
     groupBySubtype accounts = 
       let subtypeAccountsMap = groupByKey (.subtype) accounts
-      in  fmap (uncurry SummaryBySubtype) . 
+      in  sortWith (.subtype) .
+          fmap (uncurry SummaryBySubtype) . 
           M.toList . 
           flip M.map subtypeAccountsMap $ 
           sumTotalBalance . mapMaybe (.balances.maybeAvailable)

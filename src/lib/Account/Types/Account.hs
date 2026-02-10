@@ -45,12 +45,12 @@ newtype OfficialName = OfficialName
   deriving newtype ToJSON
 
 data AccountType =
-    Depository
-  | Credit
-  | Loan
+    Credit
+  | Depository
   | Investment
-  | Payroll
+  | Loan
   | OtherType
+  | Payroll
   deriving (Generic, Show, Eq, Ord, ToJSON)
 
 newtype Subtype = Subtype
@@ -89,9 +89,9 @@ data UnofficialCode =
   | BAT
   | BCH
   | BNB
+  | BSV
   | BTC
   | BTG
-  | BSV
   | CNH
   | DASH
   | DOGE
