@@ -1,6 +1,9 @@
 module Account.TestData where
 
+import Network.HTTP.Types
+
 import Account.Types as ACC
+import Common.Types as COMMON
 import Plaid.Types as PL
 
 import Account.TestDataTypes
@@ -891,3 +894,27 @@ testAccountSummaryData =
                 ]
             }
           ]
+
+testAccountSummaryPlaidErrorData :: [TestAccountSummaryPlaidError]
+testAccountSummaryPlaidErrorData = 
+  let plStructuredErrorResp = PL.StructuredResp PL.ErrorResponse 
+        { display_message = Nothing
+        , error_code = PL.ErrorCode "INVALID_ACCESS_TOKEN"
+        , error_message = PL.ErrorMessage "provided access token is invalid"
+        , error_type = PL.ErrorType "INVALID INPUT"
+        , request_id = PL.RequestId "DaxZjzBIzhYfO8H"
+        }
+      structuredErrorResp = COMMON.StructuredResp COMMON.ErrorResponse 
+        { display_message = Nothing
+        , error_code = COMMON.ErrorCode "INVALID_ACCESS_TOKEN"
+        , error_message = COMMON.ErrorMessage "provided access token is invalid"
+        , error_type = COMMON.ErrorType "INVALID INPUT"
+        , request_id = COMMON.RequestId "DaxZjzBIzhYfO8H"
+        }
+      dataPairs = 
+        [ (DeserializationError "decode-failure" "{}", DecodeFailure "decode-failure" "{}")
+        , (HttpError "http-error", CommsError "http-error")
+        , (NetworkError "network-error", CommsError "network-error")
+        , (ApiErrorResponse status400 plStructuredErrorResp, PlaidErrorResponse status400 structuredErrorResp)
+        ]
+  in  [ TestAccountSummaryPlaidError plaidError (PlaidClientError expectedOutput) | (plaidError, expectedOutput) <- dataPairs]

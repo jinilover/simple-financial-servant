@@ -6,7 +6,6 @@ where
 
 import Control.Monad.IO.Class
 import Katip
-import Network.HTTP.Types
 
 import Hedgehog
 import qualified Hedgehog.Gen as Gen
@@ -16,7 +15,7 @@ import Test.Tasty.Hedgehog
 import Account.AccountService
 import Account.Types as ACC
 import Common.Utils
-import Common.Types as COMMON
+import Common.Types
 import PlaidLinking.TokenService 
 import PlaidLinking.Types as PLK
 import Plaid.Client
@@ -56,34 +55,9 @@ test_accountSummary_plaidError :: Property
 test_accountSummary_plaidError = property
   do
     userId <- genUserId
-    TestAccountSummaryPlaidError {..} <- forAll $ Gen.element testData
+    TestAccountSummaryPlaidError {..} <- forAll $ Gen.element testAccountSummaryPlaidErrorData
     actual <- callForAccountSummary userId (plaidClientStub $ Left mockPlaidError) tokenServiceForDummyToken
     actual === Left expectedOutput
-  where
-    -- TODO move to TestData
-    testData :: [TestAccountSummaryPlaidError]
-    testData = 
-      let plStructuredErrorResp = PL.StructuredResp PL.ErrorResponse 
-            { display_message = Nothing
-            , error_code = PL.ErrorCode "INVALID_ACCESS_TOKEN"
-            , error_message = PL.ErrorMessage "provided access token is invalid"
-            , error_type = PL.ErrorType "INVALID INPUT"
-            , request_id = PL.RequestId "DaxZjzBIzhYfO8H"
-            }
-          structuredErrorResp = COMMON.StructuredResp COMMON.ErrorResponse 
-            { display_message = Nothing
-            , error_code = COMMON.ErrorCode "INVALID_ACCESS_TOKEN"
-            , error_message = COMMON.ErrorMessage "provided access token is invalid"
-            , error_type = COMMON.ErrorType "INVALID INPUT"
-            , request_id = COMMON.RequestId "DaxZjzBIzhYfO8H"
-            }
-          dataPairs = 
-            [ (DeserializationError "decode-failure" "{}", DecodeFailure "decode-failure" "{}")
-            , (HttpError "http-error", CommsError "http-error")
-            , (NetworkError "network-error", CommsError "network-error")
-            , (ApiErrorResponse status400 plStructuredErrorResp, PlaidErrorResponse status400 structuredErrorResp)
-            ]
-      in  [ TestAccountSummaryPlaidError plaidError (PlaidClientError expectedOutput) | (plaidError, expectedOutput) <- dataPairs]
 
 callForAccountSummary :: 
   MonadIO m => 
