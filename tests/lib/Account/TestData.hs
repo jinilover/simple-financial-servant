@@ -648,6 +648,21 @@ testAccountSummaryData =
                     , account_type = AccountType "depository"
                     }
                 , PL.Account
+                    { account_id = PL.AccountId "NvWorWbMzZT5ebLPDG87crmbmXp5QWiXwGM03"
+                    , balances = PL.Balances 
+                        { available = Just $ PL.AvailableBalance 29001
+                        , current = Just $ PL.CurrentBalance 210
+                        , iso_currency_code = Just $ IsoCurrencyCode "AUD"
+                        , limit = Nothing
+                        , unofficial_currency_code = Nothing
+                        }
+                    , mask = Just $ PL.Mask "1111"
+                    , name = PL.AccountName "Plaid Saving"
+                    , official_name = Just $ PL.OfficialName "Plaid Saving Maximiser Standard 0.1% Interest Saving"
+                    , subtype = Just $ AccountSubtype "savings"
+                    , account_type = AccountType "depository"
+                    }
+                , PL.Account
                     { account_id = PL.AccountId "NvWorWbMzZT5ebLPDG87crmbmXp5QWiXwGMQg"
                     , balances = PL.Balances 
                         { available = Just $ PL.AvailableBalance 200
@@ -738,6 +753,21 @@ testAccountSummaryData =
                     , account_type = AccountType "loan"
                     }
                 , PL.Account
+                    { account_id = PL.AccountId "elZdmZQyABsjrVMdB67LFQNxNl5q9eHaGbWmk04"
+                    , balances = PL.Balances 
+                        { available = Just $ PL.AvailableBalance 30000.99
+                        , current = Nothing
+                        , iso_currency_code = Just $ IsoCurrencyCode "AUD"
+                        , limit = Nothing
+                        , unofficial_currency_code = Nothing
+                        }
+                    , mask = Just $ PL.Mask "5555"
+                    , name = PL.AccountName "Plaid trust"
+                    , official_name = Nothing
+                    , subtype = Just $ AccountSubtype "trust"
+                    , account_type = AccountType "investment"
+                    }
+                , PL.Account
                     { account_id = PL.AccountId "MvkpKkGRrQT57w4NAdg1cnbMb4p8eBC4rWQ1X"
                     , balances = PL.Balances 
                         { available = Just . PL.AvailableBalance $ -10000
@@ -768,6 +798,21 @@ testAccountSummaryData =
                     , account_type = AccountType "depository"
                     }
                 , PL.Account
+                    { account_id = PL.AccountId "elZdmZQyABsjrVMdB67LFQNxNl5q9eHaGbWmk03"
+                    , balances = PL.Balances 
+                        { available = Just $ PL.AvailableBalance 1099
+                        , current = Nothing
+                        , iso_currency_code = Just $ IsoCurrencyCode "AUD"
+                        , limit = Nothing
+                        , unofficial_currency_code = Nothing
+                        }
+                    , mask = Just $ PL.Mask "5555"
+                    , name = PL.AccountName "Plaid mutual"
+                    , official_name = Nothing
+                    , subtype = Just $ AccountSubtype "mutual fund"
+                    , account_type = AccountType "investment"
+                    }
+                , PL.Account
                     { account_id = PL.AccountId "pNG1WGplKQTzG8M3K1Bli7vDvqVLo1SJdv5zM"
                     , balances = PL.Balances 
                         { available = Just $ PL.AvailableBalance 4980
@@ -782,12 +827,72 @@ testAccountSummaryData =
                     , subtype = Just $ AccountSubtype "credit card"
                     , account_type = AccountType "credit"
                     }
+                , PL.Account
+                    { account_id = PL.AccountId "elZdmZQyABsjrVMdB67LFQNxNl5q9eHaGbWmk02"
+                    , balances = PL.Balances 
+                        { available = Just $ PL.AvailableBalance 3320.76
+                        , current = Nothing
+                        , iso_currency_code = Just $ IsoCurrencyCode "AUD"
+                        , limit = Nothing
+                        , unofficial_currency_code = Nothing
+                        }
+                    , mask = Just $ PL.Mask "5555"
+                    , name = PL.AccountName "Plaid mutual"
+                    , official_name = Nothing
+                    , subtype = Just $ AccountSubtype "mutual fund"
+                    , account_type = AccountType "investment"
+                    }
+                , PL.Account
+                    { account_id = PL.AccountId "NvWorWbMzZT5ebLPDG87crmbmXp5QWiXwGM02"
+                    , balances = PL.Balances 
+                        { available = Just $ PL.AvailableBalance 39000
+                        , current = Just $ PL.CurrentBalance 210
+                        , iso_currency_code = Just $ IsoCurrencyCode "AUD"
+                        , limit = Nothing
+                        , unofficial_currency_code = Nothing
+                        }
+                    , mask = Just $ PL.Mask "1111"
+                    , name = PL.AccountName "Plaid Saving"
+                    , official_name = Just $ PL.OfficialName "Plaid Saving Accelerator Standard 0.1% Interest Saving"
+                    , subtype = Just $ AccountSubtype "savings"
+                    , account_type = AccountType "depository"
+                    }
                 ]
             }
           expectedOutput = Right 
             [ SummaryByCurrency 
                 { summaryByAccountTypes = 
-                    [  SummaryByAccountType
+                    [ SummaryByAccountType
+                        { accountType = Depository
+                        , total = ACC.AvailableBalance 68001
+                        , summaryBySubtypes = 
+                            [ SummaryBySubtype
+                                { subtype = Subtype "savings"
+                                , total = ACC.AvailableBalance 68001
+                                }
+                            ]
+                        }
+                    , SummaryByAccountType
+                        { accountType = Investment
+                        , total = ACC.AvailableBalance 34420.75
+                        , summaryBySubtypes = 
+                            [ SummaryBySubtype
+                                { subtype = Subtype "mutual fund"
+                                , total = ACC.AvailableBalance 4419.76
+                                }
+                            , SummaryBySubtype
+                                { subtype = Subtype "trust"
+                                , total = ACC.AvailableBalance 30000.99
+                                }
+                            ]
+                        }
+                    ]
+                , currency = Iso "AUD"
+                , total = ACC.AvailableBalance 102421.75
+                }
+            , SummaryByCurrency 
+                { summaryByAccountTypes = 
+                    [ SummaryByAccountType
                         { accountType = Credit
                         , total = ACC.AvailableBalance 6000
                         , summaryBySubtypes = 
