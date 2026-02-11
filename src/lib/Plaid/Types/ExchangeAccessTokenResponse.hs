@@ -11,4 +11,4 @@ data ExchangeAccessTokenResponse = ExchangeAccessTokenResponse
   { access_token :: AccessToken
   , item_id :: ItemId
   }
-  deriving ( Generic, FromJSON )
+  deriving ( Show, Generic, FromJSON )

@@ -11,4 +11,4 @@ data CreatePublicTokenResponse = CreatePublicTokenResponse
   { public_token :: PublicToken
   , request_id :: RequestId
   }
-  deriving ( Generic, FromJSON )
+  deriving ( Show, Generic, FromJSON )

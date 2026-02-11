@@ -5,4 +5,4 @@ import Data.Text
 
 newtype ItemId = ItemId
   { unItemId :: Text }
-  deriving FromJSON
+  deriving (Show, FromJSON)

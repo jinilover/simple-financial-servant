@@ -21,7 +21,6 @@ import PlaidLinking.AccessTokenStore
 import PlaidLinking.Types as PLK
 import Store.Types
 import Katip
-
 data TokenService m = TokenService 
   { exchangeToken :: UserId -> PLK.PublicToken -> m (Either PlaidApiError TokenExchangeResponse) 
   , fetchAccessTokenData :: UserId -> m (Either AccessTokenNotFound PLK.AccessToken)
@@ -80,8 +79,10 @@ mkTokenService plaidClient tokenStore = TokenService
               logFM ErrorS "It has re-created the public token but still fails to exchange an access token" $> 
               clientToServiceError accessTokenErr
 
+    clientToServiceError :: PlaidError -> Either PlaidApiError a
     clientToServiceError = Left . fromPlaidError
 
+    createPublicTokenRequired :: PlaidError -> [CreatePublicTokenConfig] -> Bool
     createPublicTokenRequired (ApiErrorResponse _ (StructuredResp errResp)) configs =
       flip any configs $ \CreatePublicTokenConfig {..} ->
         let respErrorCode = T.toLower errResp.error_code.unErrorCode

@@ -7,7 +7,7 @@ import qualified Plaid.Types.AccessToken as PL
 
 newtype AccessToken = AccessToken
   { unAccessToken :: Text }
-  deriving (PersistField, PersistFieldSql, Show)
+  deriving (Eq, PersistField, PersistFieldSql, Show)
 
 fromPLAccessToken :: PL.AccessToken -> AccessToken
 fromPLAccessToken = AccessToken . (.unAccessToken)
