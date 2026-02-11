@@ -6,14 +6,15 @@ module PlaidLinking.TokenService
 where
 
 import Control.Lens
+import Control.Monad.Except
 import Control.Monad.IO.Class
 import Control.Monad.Reader
 import Data.Functor
 import qualified Data.Text as T
 import Data.Time.Clock
   
-import Common.Utils
 import Common.Types    hiding (StructuredResp, ErrorResponse)
+import Common.Utils
 import Plaid.Client
 import Plaid.Types as PL
 import PlaidLinking.AccessTokenStore
@@ -35,12 +36,15 @@ mkTokenService plaidClient tokenStore = TokenService
   { exchangeToken = \userId publicToken -> 
       do 
         createPublicTokenConfigs <- view (plaidLinkingConfig . configCreatePublicTokens)
-        addNameSpace . callForAccessToken 0 createPublicTokenConfigs userId . fromPSPublicToken $ publicToken
+        addNameSpace . runExceptT $
+          (ExceptT . callForAccessToken 0 createPublicTokenConfigs userId . fromPSPublicToken) publicToken >>= 
+            ExceptT . saveAccessToken userId
   , fetchAccessTokenData = \userId -> tokenStore.fetchAccessTokenData (AccessTokenDataKey userId) <&>
       maybe (Left $ AccessTokenNotFound userId) (Right . (.accessTokenDataAccessToken))
   }
   where
-    saveAccessToken ExchangeAccessTokenResponse {..} userId = 
+    saveAccessToken :: UserId -> ExchangeAccessTokenResponse -> m (Either e TokenExchangeResponse)
+    saveAccessToken userId ExchangeAccessTokenResponse {..} = 
       do
         now <- liftIO getCurrentTime
         let
@@ -50,15 +54,15 @@ mkTokenService plaidClient tokenStore = TokenService
           accessTokenDataCreatedAt = CreatedAt now
           accessTokenDataUpdatedAt = UpdatedAt now
           accessTokenData = AccessTokenData {..}
-        _ <- tokenStore.saveAccessTokenData accessTokenData
-        pureRight TokenExchangeResponse { itemId = accessTokenDataItemId}
+        primaryKey <- tokenStore.saveAccessTokenData accessTokenData
+        logFM InfoS (logStr $ "Access token Saved for " <> show primaryKey) $>
+          Right TokenExchangeResponse { itemId = accessTokenDataItemId}
 
-    callForAccessToken :: Int -> [CreatePublicTokenConfig] -> UserId -> PL.PublicToken -> m (Either PlaidApiError TokenExchangeResponse)
+    callForAccessToken :: Int -> [CreatePublicTokenConfig] -> UserId -> PL.PublicToken -> m (Either PlaidApiError ExchangeAccessTokenResponse)
     callForAccessToken count createPublicTokenConfigs userId publicToken = 
       logFM InfoS ("Exchanging access token for " <> logStr (show userId)) *>
       plaidClient.exchangeAccessToken publicToken >>= \case
-        Right accessTokenResp -> 
-          saveAccessToken accessTokenResp userId
+        Right accessTokenResp -> pureRight accessTokenResp
         Left accessTokenErr ->
           case (count, createPublicTokenRequired accessTokenErr createPublicTokenConfigs) of
             (0, True) -> 
