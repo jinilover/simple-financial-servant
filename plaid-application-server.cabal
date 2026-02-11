@@ -164,9 +164,13 @@ test-suite lib-test
                     , Common.Gen
                     , Common.Stubs
                     , Common.TestUtils
+                    , PlaidLinking.TestData
+                    , PlaidLinking.TestDataTypes
+                    , PlaidLinking.TokenServiceTest
     hs-source-dirs:   tests/lib
     build-depends:    lib
                     , base
+                    , mtl
                     , text
                     , uuid
                     , hedgehog

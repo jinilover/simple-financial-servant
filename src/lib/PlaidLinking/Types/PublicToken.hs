@@ -5,4 +5,4 @@ import Servant
 
 newtype PublicToken = PublicToken
   { unPublicToken :: Text }
-  deriving FromHttpApiData
+  deriving (Show, FromHttpApiData)

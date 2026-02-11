@@ -19,13 +19,13 @@ fromPLErrorResponseBody :: PL.ErrorResponseBody -> ErrorResponseBody
 fromPLErrorResponseBody (PL.Payload bs) = Payload bs
 fromPLErrorResponseBody (PL.StructuredResp errResp) = StructuredResp $ fromPLErrorResponse errResp
 
-data ErrorResponse = ErrorResponse {
-      display_message :: Maybe DisplayMessage
-    , error_code :: ErrorCode
-    , error_message :: ErrorMessage
-    , error_type :: ErrorType
-    , request_id :: RequestId
-    }
+data ErrorResponse = ErrorResponse 
+  { display_message :: Maybe DisplayMessage
+  , error_code :: ErrorCode
+  , error_message :: ErrorMessage
+  , error_type :: ErrorType
+  , request_id :: RequestId
+  }
   deriving (Eq, Show, Generic, ToJSON)
 
 fromPLErrorResponse :: PL.ErrorResponse -> ErrorResponse

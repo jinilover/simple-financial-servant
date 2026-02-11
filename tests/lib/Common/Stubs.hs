@@ -2,6 +2,7 @@ module Common.Stubs where
 
 import Common.TestUtils
 import Plaid.Client
+import PlaidLinking.AccessTokenStore
 import PlaidLinking.TokenService
 
 plaidClientNoop :: PlaidClient m
@@ -15,4 +16,10 @@ tokenServiceNoop :: TokenService m
 tokenServiceNoop = TokenService
   { exchangeToken = shouldNotBeCalled
   , fetchAccessTokenData = shouldNotBeCalled
-  }  
+  }
+
+accessTokenStoreNoop :: AccessTokenStore m
+accessTokenStoreNoop = AccessTokenStore
+  { saveAccessTokenData = shouldNotBeCalled
+  , fetchAccessTokenData = shouldNotBeCalled
+  }
