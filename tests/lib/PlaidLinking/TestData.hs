@@ -141,7 +141,8 @@ testExchangeTokenData =
           ]
       , expectedCreatePublicTokenCount = CreatePublicTokenCount 0
       , expectedStoredTokens = []
-      , expectedOutput = Left . PlaidErrorResponse status400 . COMMON.StructuredResp $
+      , expectedOutput = 
+          Left . PlaidErrorResponse status400 . COMMON.StructuredResp $
           COMMON.ErrorResponse Nothing (COMMON.ErrorCode "match_any_of_them") (COMMON.ErrorMessage "aa bb xx") (COMMON.ErrorType "any_error_type") (COMMON.RequestId "sample-request-id")
       }
   , TestExchangeToken
@@ -234,7 +235,8 @@ testExchangeTokenData =
           ]
       , expectedCreatePublicTokenCount = CreatePublicTokenCount 1
       , expectedStoredTokens = []
-      , expectedOutput = Left . PlaidErrorResponse status400 . COMMON.StructuredResp $
+      , expectedOutput = 
+          Left . PlaidErrorResponse status400 . COMMON.StructuredResp $
           COMMON.ErrorResponse Nothing (COMMON.ErrorCode "INVALID_PUBLIC_TOKEN") (COMMON.ErrorMessage "public tokenexpired") (COMMON.ErrorType "expired token in second time") (COMMON.RequestId "sample-request-id-2")
       }
   , TestExchangeToken
@@ -267,5 +269,37 @@ testExchangeTokenData =
       , expectedCreatePublicTokenCount = CreatePublicTokenCount 1
       , expectedStoredTokens = []
       , expectedOutput = Left $ DecodeFailure "randomErrorMsg" "{}"
+      }
+  , TestExchangeToken
+      { purpose =
+          "plaid first time return ApiErrorResponse of expired public token, " <>
+          "error is deemed by createPublicTokenConfigs to call for public token, " <>
+          "plaid should be called for public token but return public token error, " <>
+          "service should return the public token error"
+      , firstPublicTokenToPlaid = PLK.PublicToken "expired-public-token"
+      , mockAccessTokenResps = 
+          [ Left . ApiErrorResponse status400 . PL.StructuredResp $ 
+              PL.ErrorResponse Nothing (PL.ErrorCode "INVALID_PUBLIC_TOKEN") (PL.ErrorMessage "public tokenexpired") (PL.ErrorType "expired token in first time") (PL.RequestId "sample-request-id-1")
+          ]
+      , mockCreatePublicTokenConfigs =
+          [ CreatePublicTokenConfig
+              { _configMatchedErrorCode = MatchedErrorCode "INVALID_PUBLIC_TOKEN"
+              , _configMatchedErrorWords = 
+                  [ MatchedErrorWord "public token"
+                  , MatchedErrorWord "expired"
+                  ]
+              }
+          ]
+      , mockPublicTokenResp = 
+        Left . ApiErrorResponse status400 . PL.StructuredResp $ 
+          PL.ErrorResponse Nothing (PL.ErrorCode "INVALID_REQUEST") (PL.ErrorMessage "fail to return public token") (PL.ErrorType "INVALID_RESULT") (PL.RequestId "sample-public-token-request-id")
+      , expectedReceivedPublicTokens = 
+          [ PL.PublicToken "expired-public-token"
+          ]
+      , expectedCreatePublicTokenCount = CreatePublicTokenCount 1
+      , expectedStoredTokens = []
+      , expectedOutput = 
+          Left . PlaidErrorResponse status400 . COMMON.StructuredResp $
+          COMMON.ErrorResponse Nothing (COMMON.ErrorCode "INVALID_REQUEST") (COMMON.ErrorMessage "fail to return public token") (COMMON.ErrorType "INVALID_RESULT") (COMMON.RequestId "sample-public-token-request-id")
       }
   ]
