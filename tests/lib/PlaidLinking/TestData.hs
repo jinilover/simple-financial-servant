@@ -204,4 +204,68 @@ testExchangeTokenData =
       , expectedStoredTokens = []
       , expectedOutput = Left $ CommsError "randomNetworkErrorMsg"
       }
+  , TestExchangeToken
+      { purpose =
+          "plaid first time return ApiErrorResponse of expired public token, " <>
+          "error is deemed by createPublicTokenConfigs to call for public token, " <>
+          "plaid should be called for public token and return success public token, " <>
+          "plaid still returns expired public token in second time, " <>
+          "service should give up and return the second expired public token error"
+      , firstPublicTokenToPlaid = PLK.PublicToken "expired-public-token"
+      , mockAccessTokenResps = 
+          [ Left . ApiErrorResponse status400 . PL.StructuredResp $ 
+              PL.ErrorResponse Nothing (PL.ErrorCode "INVALID_PUBLIC_TOKEN") (PL.ErrorMessage "public tokenexpired") (PL.ErrorType "expired token in first time") (PL.RequestId "sample-request-id-1")
+          , Left . ApiErrorResponse status400 . PL.StructuredResp $ 
+              PL.ErrorResponse Nothing (PL.ErrorCode "INVALID_PUBLIC_TOKEN") (PL.ErrorMessage "public tokenexpired") (PL.ErrorType "expired token in second time") (PL.RequestId "sample-request-id-2")
+          ]
+      , mockCreatePublicTokenConfigs =
+          [ CreatePublicTokenConfig
+              { _configMatchedErrorCode = MatchedErrorCode "INVALID_PUBLIC_TOKEN"
+              , _configMatchedErrorWords = 
+                  [ MatchedErrorWord "public token"
+                  , MatchedErrorWord "expired"
+                  ]
+              }
+          ]
+      , mockPublicTokenResp = Right $ CreatePublicTokenResponse (PL.PublicToken "renewed-public-token") (PL.RequestId "renewed-public-token-request-id")
+      , expectedReceivedPublicTokens = 
+          [ PL.PublicToken "expired-public-token"
+          , PL.PublicToken "renewed-public-token"
+          ]
+      , expectedCreatePublicTokenCount = CreatePublicTokenCount 1
+      , expectedStoredTokens = []
+      , expectedOutput = Left . PlaidErrorResponse status400 . COMMON.StructuredResp $
+          COMMON.ErrorResponse Nothing (COMMON.ErrorCode "INVALID_PUBLIC_TOKEN") (COMMON.ErrorMessage "public tokenexpired") (COMMON.ErrorType "expired token in second time") (COMMON.RequestId "sample-request-id-2")
+      }
+  , TestExchangeToken
+      { purpose =
+          "plaid first time return ApiErrorResponse of expired public token, " <>
+          "error is deemed by createPublicTokenConfigs to call for public token, " <>
+          "plaid should be called for public token and return success public token, " <>
+          "plaid returns DeserializationError in second time, " <>
+          "service should return the DeserializationError"
+      , firstPublicTokenToPlaid = PLK.PublicToken "expired-public-token"
+      , mockAccessTokenResps = 
+          [ Left . ApiErrorResponse status400 . PL.StructuredResp $ 
+              PL.ErrorResponse Nothing (PL.ErrorCode "INVALID_PUBLIC_TOKEN") (PL.ErrorMessage "public tokenexpired") (PL.ErrorType "expired token in first time") (PL.RequestId "sample-request-id-1")
+          , Left $ DeserializationError "randomErrorMsg" "{}"
+          ]
+      , mockCreatePublicTokenConfigs =
+          [ CreatePublicTokenConfig
+              { _configMatchedErrorCode = MatchedErrorCode "INVALID_PUBLIC_TOKEN"
+              , _configMatchedErrorWords = 
+                  [ MatchedErrorWord "public token"
+                  , MatchedErrorWord "expired"
+                  ]
+              }
+          ]
+      , mockPublicTokenResp = Right $ CreatePublicTokenResponse (PL.PublicToken "renewed-public-token") (PL.RequestId "renewed-public-token-request-id")
+      , expectedReceivedPublicTokens = 
+          [ PL.PublicToken "expired-public-token"
+          , PL.PublicToken "renewed-public-token"
+          ]
+      , expectedCreatePublicTokenCount = CreatePublicTokenCount 1
+      , expectedStoredTokens = []
+      , expectedOutput = Left $ DecodeFailure "randomErrorMsg" "{}"
+      }
   ]
