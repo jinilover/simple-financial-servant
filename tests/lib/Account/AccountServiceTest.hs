@@ -38,10 +38,10 @@ test_accountSummary :: Property
 test_accountSummary = property 
   do
     userId <- genUserId
-    TestAccountSummary {..} <- forAll $ Gen.element testAccountSummaryData
-    resp <- callForAccountSummary userId (plaidClientStub $ Right mockPlaidData) tokenServiceForDummyToken
+    testData <- forAll $ Gen.element testAccountSummaryData
+    resp <- callForAccountSummary userId (plaidClientStub $ Right testData.mockPlaidData) tokenServiceForDummyToken
     let actual = (.summaryByCurrencies) <$> resp
-    actual === expectedOutput
+    actual === testData.expectedOutput
 
 test_accountSummary_accessNotFound :: Property
 test_accountSummary_accessNotFound = property 
@@ -55,9 +55,9 @@ test_accountSummary_plaidError :: Property
 test_accountSummary_plaidError = property
   do
     userId <- genUserId
-    TestAccountSummaryPlaidError {..} <- forAll $ Gen.element testAccountSummaryPlaidErrorData
-    actual <- callForAccountSummary userId (plaidClientStub $ Left mockPlaidError) tokenServiceForDummyToken
-    actual === Left expectedOutput
+    testData <- forAll $ Gen.element testAccountSummaryPlaidErrorData
+    actual <- callForAccountSummary userId (plaidClientStub $ Left testData.mockPlaidError) tokenServiceForDummyToken
+    actual === Left testData.expectedOutput
 
 callForAccountSummary :: 
   MonadIO m => 
