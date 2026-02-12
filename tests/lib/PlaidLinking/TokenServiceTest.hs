@@ -38,29 +38,29 @@ test_exchangeToken :: Property
 test_exchangeToken = property
   do
     userId <- genUserId
-    TestExchangeToken {..} <- forAll $ Gen.element testExchangeTokenData
+    testData <- forAll $ Gen.element testExchangeTokenData
     (accessTokenRespsRef, receivedPublicTokensRef, publicTokenCountRef, storedTokensRef) <- liftIO $
-      (,,,) <$> newIORef mockAccessTokenResps
+      (,,,) <$> newIORef testData.mockAccessTokenResps
             <*> newIORef []
             <*> newIORef (CreatePublicTokenCount 0)
             <*> newIORef []
 
     let actualOutputM = withKatipContext $
-          let plaidClient = plaidClientStub accessTokenRespsRef receivedPublicTokensRef mockPublicTokenResp publicTokenCountRef
+          let plaidClient = plaidClientStub accessTokenRespsRef receivedPublicTokensRef testData.mockPublicTokenResp publicTokenCountRef
               accessTokenStore = accessTokenStoreStub storedTokensRef $ AccessTokenDataKey userId
               tokenService = mkTokenService plaidClient accessTokenStore
-          in  tokenService.exchangeToken userId firstPublicTokenToPlaid
+          in  tokenService.exchangeToken userId testData.firstPublicTokenToPlaid
     
-    actualOutput <- runReaderT actualOutputM $ PlaidLinkingConfig mockCreatePublicTokenConfigs
+    actualOutput <- runReaderT actualOutputM $ PlaidLinkingConfig testData.mockCreatePublicTokenConfigs
     (actualReceivedPublicTokens, actualCreatePublicTokenCount, actualStoredTokens) <- liftIO $
       (,,)  <$> readIORef receivedPublicTokensRef
             <*> readIORef publicTokenCountRef
             <*> readIORef storedTokensRef
 
-    actualCreatePublicTokenCount === expectedCreatePublicTokenCount
-    actualReceivedPublicTokens === expectedReceivedPublicTokens
-    actualStoredTokens === expectedStoredTokens
-    actualOutput === expectedOutput
+    actualCreatePublicTokenCount === testData.expectedCreatePublicTokenCount
+    actualReceivedPublicTokens === testData.expectedReceivedPublicTokens
+    actualStoredTokens === testData.expectedStoredTokens
+    actualOutput === testData.expectedOutput
 
 plaidClientStub :: 
   MonadIO m =>
