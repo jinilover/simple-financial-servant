@@ -70,8 +70,8 @@ mkAccountService plaidClient tokenService = AccountService
             in  SummaryByCurrency {..}
           ) .
           M.toList . 
-          flip M.map currencyAccountsMap $
-          groupByAccountType
+          M.map groupByAccountType $
+          currencyAccountsMap
 
     groupByAccountType :: [Account] -> [SummaryByAccountType]
     groupByAccountType accounts = 
@@ -82,8 +82,8 @@ mkAccountService plaidClient tokenService = AccountService
             in  SummaryByAccountType {..}
           ) . 
           M.toList . 
-          flip M.map typeAccountsMap $ 
-          groupBySubtype
+          M.map groupBySubtype $
+          typeAccountsMap
 
     groupBySubtype :: [Account] -> [SummaryBySubtype]
     groupBySubtype accounts = 
