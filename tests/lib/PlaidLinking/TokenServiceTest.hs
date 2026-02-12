@@ -5,6 +5,7 @@ module PlaidLinking.TokenServiceTest
   )
 where
 
+import Control.Applicative.HT
 import Control.Monad.IO.Class
 import Control.Monad.Reader
 import Data.Functor
@@ -39,11 +40,8 @@ test_exchangeToken = property
   do
     userId <- genUserId
     testData <- forAll $ Gen.element testExchangeTokenData
-    (accessTokenRespsRef, receivedPublicTokensRef, publicTokenCountRef, storedTokensRef) <- liftIO $
-      (,,,) <$> newIORef testData.mockAccessTokenResps
-            <*> newIORef []
-            <*> newIORef (CreatePublicTokenCount 0)
-            <*> newIORef []
+    (accessTokenRespsRef, receivedPublicTokensRef, publicTokenCountRef, storedTokensRef) <- liftIO $ lift4 (,,,) 
+      (newIORef testData.mockAccessTokenResps) (newIORef []) (newIORef $ CreatePublicTokenCount 0) (newIORef [])
 
     let actualOutputM = withKatipContext $
           let plaidClient = plaidClientStub accessTokenRespsRef receivedPublicTokensRef testData.mockPublicTokenResp publicTokenCountRef
@@ -52,10 +50,8 @@ test_exchangeToken = property
           in  tokenService.exchangeToken userId testData.firstPublicTokenToPlaid
     
     actualOutput <- runReaderT actualOutputM $ PlaidLinkingConfig testData.mockCreatePublicTokenConfigs
-    (actualReceivedPublicTokens, actualCreatePublicTokenCount, actualStoredTokens) <- liftIO $
-      (,,)  <$> readIORef receivedPublicTokensRef
-            <*> readIORef publicTokenCountRef
-            <*> readIORef storedTokensRef
+    (actualReceivedPublicTokens, actualCreatePublicTokenCount, actualStoredTokens) <- liftIO $ lift3 (,,) 
+      (readIORef receivedPublicTokensRef) (readIORef publicTokenCountRef) (readIORef storedTokensRef)
 
     actualCreatePublicTokenCount === testData.expectedCreatePublicTokenCount
     actualReceivedPublicTokens === testData.expectedReceivedPublicTokens

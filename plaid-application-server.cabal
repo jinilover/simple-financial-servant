@@ -176,6 +176,7 @@ test-suite lib-test
                     , hedgehog
                     , http-types
                     , katip
+                    , utility-ht
                     , tasty
                     , tasty-hedgehog
 
