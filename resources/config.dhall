@@ -29,9 +29,9 @@ let Config =
 let config : Config =
   { serverPort = 8001
   , store = 
-      { dbConnString = "host=localhost port=5432 user=haskell dbname=plaid_application_server_db password=haskell"
+      { dbConnString = "host=localhost port=5432 user=haskell dbname=simple_financial_servant_db password=haskell"
       , dbConnPoolSize = 10
-      , dbSchema = "plaid_application_server"
+      , dbSchema = "simple_financial_servant"
       }
   , plaid = 
       { endpoint = "https://sandbox.plaid.com"

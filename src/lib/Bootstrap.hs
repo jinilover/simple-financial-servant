@@ -31,7 +31,7 @@ mkAppEnv =
 mkLogEnv :: IO LogEnv
 mkLogEnv = 
   do
-    le <- initLogEnv "plaid-application-server" "sandbox"
+    le <- initLogEnv "simple-financial-servant" "sandbox"
     handleScribe <- mkHandleScribe ColorIfTerminal stdout (permitItem DebugS) V2
     registerScribe "stdout" handleScribe defaultScribeSettings le
 

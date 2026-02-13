@@ -23,7 +23,7 @@ import Servant.Client
 
 import Common.Types
 import DhallConfig
-import Paths_plaid_application_server ( getDataFileName )
+import Paths_simple_financial_servant ( getDataFileName )
 import Plaid.Types ( PlaidConfig(..), Endpoint (..))
 import PlaidLinking.Types
 import Store.Types

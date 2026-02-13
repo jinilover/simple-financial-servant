@@ -1,4 +1,4 @@
-# Revision history for plaid-application-server
+# Revision history for simple-financial-servant
 
 ## 0.1.0.0 -- YYYY-mm-dd
 
