@@ -24,16 +24,25 @@
       );
     in
     {
+      packages = forAllSystems ( { pkgs }: rec {
+        haskellPackages = pkgs.haskellPackages;
+        
+        # Build the Haskell package from the cabal file
+        simple-financial-servant = haskellPackages.callCabal2nix "simple-financial-servant" ./. { };
+        
+        # Default package to build
+        default = simple-financial-servant;
+      });
+
       # Development environment output
       devShells = forAllSystems ( { pkgs }: rec {
-        haskellPackages = pkgs.haskell.packages.ghc;
-
         default = pkgs.mkShell {
-          packages = with haskellPackages; with pkgs; [
+          packages = with pkgs; [
+            # Haskell toolchain (available directly from pkgs, not from haskell.packages.*)
             ghc
             cabal-install
             haskell-language-server # hlint is part of hls
-            ## `pkgs` packages
+            # System/library packages
             zlib 
             postgresql
             pkg-config
