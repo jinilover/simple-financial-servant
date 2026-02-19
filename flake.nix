@@ -18,6 +18,7 @@
       ];
 
       # Helper to provide system-specific attributes
+      # genAttrs :: [String] -> (String -> any) -> AttrSet
       forAllSystems = f: nixpkgs.lib.genAttrs allSystems (system: f 
         { pkgs = nixpkgs.legacyPackages.${system}; }
         # nixpkgs.legacyPackages.${system}
@@ -25,6 +26,7 @@
     in
     {
       packages = forAllSystems ( { pkgs }: rec {
+      # packages = forAllSystems (  pkgs : rec {
         haskellPackages = pkgs.haskellPackages;
         
         # Build the Haskell package from the cabal file
@@ -36,6 +38,7 @@
 
       # Development environment output
       devShells = forAllSystems ( { pkgs }: rec {
+      # devShells = forAllSystems (  pkgs : rec {
         default = pkgs.mkShell {
           packages = with pkgs; [
             # Haskell toolchain (available directly from pkgs, not from haskell.packages.*)
